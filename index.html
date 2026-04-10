@@ -13,39 +13,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Ügyeleti">
 <link rel="apple-touch-icon" href="/ugyelet/icon-192.png">
-<!-- Firebase -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot, writeBatch }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const firebaseConfig = {
-apiKey: “AIzaSyCVkMbKkorbK4v3RBrIA21_iuLX0S-td4Y”,
-authDomain: “gyermekcentrum-ugyelet.firebaseapp.com”,
-projectId: “gyermekcentrum-ugyelet”,
-storageBucket: “gyermekcentrum-ugyelet.firebasestorage.app”,
-messagingSenderId: “568804787959”,
-appId: “1:568804787959:web:e12cc0169dadafe7b1f5f2”
-};
-
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
-
-// ── Expose DB helpers to global scope ──
-window._db = db;
-window._col = collection;
-window._doc = doc;
-window._setDoc = setDoc;
-window._getDocs = getDocs;
-window._deleteDoc = deleteDoc;
-window._onSnapshot = onSnapshot;
-window._writeBatch = writeBatch;
-window._firebaseReady = true;
-window.dispatchEvent(new Event(‘firebaseReady’));
-</script>
-
+<!-- Firebase betöltés az app scriptben -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
 <style>
 :root {
   --bg:#f0f3f8; --sur:#fff; --sur2:#e8edf5; --bord:#d4dae6;
@@ -62,160 +31,160 @@ window.dispatchEvent(new Event(‘firebaseReady’));
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:15px;}
 
 /* ── HEADER ── */
-header{background:var(--blue);color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.22);}
-.h-title h1{font-family:'DM Serif Display',serif;font-size:1.08rem;font-weight:400;}
+header{background:var(–blue);color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.22);}
+.h-title h1{font-family:‘DM Serif Display’,serif;font-size:1.08rem;font-weight:400;}
 .h-title p{font-size:.7rem;opacity:.72;margin-top:1px;}
 .h-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:7px 13px;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;}
 .h-btn:active{background:rgba(255,255,255,.28);}
 
 /* ── BOTTOM NAV (mobile-first) ── */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--sur);border-top:1px solid var(--bord);display:flex;z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,.08);}
-.bottom-nav button{flex:1;padding:9px 4px 10px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:.62rem;font-weight:500;color:var(--tx2);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .18s;}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(–sur);border-top:1px solid var(–bord);display:flex;z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,.08);}
+.bottom-nav button{flex:1;padding:9px 4px 10px;border:none;background:none;font-family:‘DM Sans’,sans-serif;font-size:.62rem;font-weight:500;color:var(–tx2);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .18s;}
 .bottom-nav button .nav-ico{font-size:1.25rem;line-height:1;}
-.bottom-nav button.active{color:var(--blue);}
+.bottom-nav button.active{color:var(–blue);}
 .bottom-nav button.active .nav-ico{transform:scale(1.1);}
 
 /* top nav for desktop */
-.top-nav{display:none;background:var(--sur);border-bottom:1px solid var(--bord);}
-.top-nav button{padding:11px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;color:var(--tx2);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;transition:all .18s;}
-.top-nav button.active{color:var(--blue);border-bottom-color:var(--blue);}
+.top-nav{display:none;background:var(–sur);border-bottom:1px solid var(–bord);}
+.top-nav button{padding:11px 18px;border:none;background:none;font-family:‘DM Sans’,sans-serif;font-size:.85rem;font-weight:500;color:var(–tx2);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;transition:all .18s;}
+.top-nav button.active{color:var(–blue);border-bottom-color:var(–blue);}
 
 @media(min-width:700px){
-  .bottom-nav{display:none;}
-  .top-nav{display:flex;overflow-x:auto;}
+.bottom-nav{display:none;}
+.top-nav{display:flex;overflow-x:auto;}
 }
 
 main{padding:14px 13px;max-width:980px;margin:0 auto;padding-bottom:76px;}
 @media(min-width:700px){main{padding-bottom:20px;}}
 
 /* ── CARDS ── */
-.card{background:var(--sur);border-radius:var(--r);border:1px solid var(--bord);padding:15px;margin-bottom:12px;box-shadow:var(--sh);}
-.card-title{font-family:'DM Serif Display',serif;font-size:1rem;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.card{background:var(–sur);border-radius:var(–r);border:1px solid var(–bord);padding:15px;margin-bottom:12px;box-shadow:var(–sh);}
+.card-title{font-family:‘DM Serif Display’,serif;font-size:1rem;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
 
 /* ── BUTTONS ── */
-.btn{padding:9px 16px;border-radius:9px;border:none;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .18s;min-height:40px;}
-.btn-primary{background:var(--blue);color:#fff;}
+.btn{padding:9px 16px;border-radius:9px;border:none;font-family:‘DM Sans’,sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .18s;min-height:40px;}
+.btn-primary{background:var(–blue);color:#fff;}
 .btn-primary:active{background:#133870;}
-.btn-sec{background:var(--sur2);color:var(--tx);border:1px solid var(--bord);}
-.btn-sec:active{background:var(--bord);}
-.btn-del{background:var(--red-l);color:var(--red);border:1px solid #e8b0b0;}
+.btn-sec{background:var(–sur2);color:var(–tx);border:1px solid var(–bord);}
+.btn-sec:active{background:var(–bord);}
+.btn-del{background:var(–red-l);color:var(–red);border:1px solid #e8b0b0;}
 .btn-sm{padding:6px 11px;font-size:.76rem;min-height:32px;}
 
 /* ── FORM ── */
-input,select,textarea{font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--tx);background:var(--bg);border:1.5px solid var(--bord);border-radius:9px;padding:9px 12px;width:100%;outline:none;transition:border-color .2s;-webkit-appearance:none;min-height:42px;}
-input:focus,select:focus,textarea:focus{border-color:var(--blue2);background:#fff;}
-label{font-size:.78rem;font-weight:600;color:var(--tx2);display:block;margin-bottom:4px;}
+input,select,textarea{font-family:‘DM Sans’,sans-serif;font-size:.9rem;color:var(–tx);background:var(–bg);border:1.5px solid var(–bord);border-radius:9px;padding:9px 12px;width:100%;outline:none;transition:border-color .2s;-webkit-appearance:none;min-height:42px;}
+input:focus,select:focus,textarea:focus{border-color:var(–blue2);background:#fff;}
+label{font-size:.78rem;font-weight:600;color:var(–tx2);display:block;margin-bottom:4px;}
 .fr{margin-bottom:11px;}
 .fg2{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
 @media(max-width:420px){.fg2{grid-template-columns:1fr;}}
 
 /* ── TOGGLE ── */
-.tog{width:42px;height:24px;background:var(--bord);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;display:inline-block;}
-.tog.on{background:var(--blue);}
-.tog::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.18);}
+.tog{width:42px;height:24px;background:var(–bord);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;display:inline-block;}
+.tog.on{background:var(–blue);}
+.tog::after{content:’’;position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.18);}
 .tog.on::after{left:21px;}
 
 /* ── CALENDAR ── */
 .month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.month-title{font-family:'DM Serif Display',serif;font-size:1.05rem;}
+.month-title{font-family:‘DM Serif Display’,serif;font-size:1.05rem;}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
-.cal-dh{text-align:center;font-size:.64rem;font-weight:700;color:var(--tx2);padding:5px 0;text-transform:uppercase;letter-spacing:.04em;}
-.cal-day{background:var(--bg);border:1.5px solid var(--bord);border-radius:8px;padding:4px 3px;min-height:70px;cursor:pointer;overflow:hidden;position:relative;}
+.cal-dh{text-align:center;font-size:.64rem;font-weight:700;color:var(–tx2);padding:5px 0;text-transform:uppercase;letter-spacing:.04em;}
+.cal-day{background:var(–bg);border:1.5px solid var(–bord);border-radius:8px;padding:4px 3px;min-height:70px;cursor:pointer;overflow:hidden;position:relative;}
 .cal-day:active{background:#fff;}
-.cal-day.today{border-color:var(--blue);background:var(--blue-l);}
+.cal-day.today{border-color:var(–blue);background:var(–blue-l);}
 .cal-day.empty{background:none;border-color:transparent;pointer-events:none;}
-.cal-day.weekend .dn{color:var(--red);}
-.cal-day.warn{border-color:var(--ora)!important;}
+.cal-day.weekend .dn{color:var(–red);}
+.cal-day.warn{border-color:var(–ora)!important;}
 .cal-day.ok{border-color:#60b87a;}
-.dn{font-size:.75rem;font-weight:700;color:var(--tx2);margin-bottom:2px;}
-.cal-day.today .dn{color:var(--blue);}
+.dn{font-size:.75rem;font-weight:700;color:var(–tx2);margin-bottom:2px;}
+.cal-day.today .dn{color:var(–blue);}
 .chip{font-size:.54rem;font-weight:600;padding:1px 4px;border-radius:3px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;line-height:1.4;}
-.c-ab{background:var(--blue);color:#fff;}
-.c-pic{background:var(--pic);color:#fff;}
-.c-ex{background:var(--green);color:#fff;}
-.c-kz{background:var(--yel-l);color:var(--yel);border:1px solid #e0d080;}
-.c-bh{background:var(--ora-l);color:var(--ora);border:1px solid var(--ora-b);}
-.c-warn{background:var(--ora);color:#fff;}
+.c-ab{background:var(–blue);color:#fff;}
+.c-pic{background:var(–pic);color:#fff;}
+.c-ex{background:var(–green);color:#fff;}
+.c-kz{background:var(–yel-l);color:var(–yel);border:1px solid #e0d080;}
+.c-bh{background:var(–ora-l);color:var(–ora);border:1px solid var(–ora-b);}
+.c-warn{background:var(–ora);color:#fff;}
 
 /* ── DAY DETAIL PANEL ── */
-.day-panel{background:var(--sur);border:1px solid var(--bord);border-radius:var(--r);padding:14px;margin-bottom:12px;box-shadow:var(--sh);display:none;}
+.day-panel{background:var(–sur);border:1px solid var(–bord);border-radius:var(–r);padding:14px;margin-bottom:12px;box-shadow:var(–sh);display:none;}
 .day-panel.open{display:block;}
 .dp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.dp-title{font-family:'DM Serif Display',serif;font-size:.98rem;}
+.dp-title{font-family:‘DM Serif Display’,serif;font-size:.98rem;}
 
 /* slot rows */
 .slot-group{margin-bottom:10px;}
-.slot-group-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--tx2);margin-bottom:5px;padding:0 2px;}
-.slot{display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:9px;border:1.5px solid var(--bord);margin-bottom:5px;background:var(--bg);}
-.slot.s-ab{border-color:var(--blue2);background:var(--blue-l);}
-.slot.s-pic{border-color:var(--pic);background:var(--pic-l);}
-.slot.s-ex{border-color:var(--green);background:var(--green-l);}
-.slot.s-kz{border-color:#c8b800;background:var(--yel-l);}
-.slot.s-bh{border-color:var(--ora-b);background:var(--ora-l);}
-.slot.s-warn{border-color:var(--red)!important;background:var(--red-l);}
-.sl-lbl{font-size:.73rem;font-weight:700;min-width:115px;flex-shrink:0;color:var(--tx2);}
+.slot-group-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(–tx2);margin-bottom:5px;padding:0 2px;}
+.slot{display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:9px;border:1.5px solid var(–bord);margin-bottom:5px;background:var(–bg);}
+.slot.s-ab{border-color:var(–blue2);background:var(–blue-l);}
+.slot.s-pic{border-color:var(–pic);background:var(–pic-l);}
+.slot.s-ex{border-color:var(–green);background:var(–green-l);}
+.slot.s-kz{border-color:#c8b800;background:var(–yel-l);}
+.slot.s-bh{border-color:var(–ora-b);background:var(–ora-l);}
+.slot.s-warn{border-color:var(–red)!important;background:var(–red-l);}
+.sl-lbl{font-size:.73rem;font-weight:700;min-width:115px;flex-shrink:0;color:var(–tx2);}
 .sl-doc{font-size:.88rem;font-weight:500;flex:1;min-width:0;}
 .role-badge{font-size:.64rem;font-weight:700;padding:2px 7px;border-radius:20px;flex-shrink:0;white-space:nowrap;}
-.rb-sza{background:var(--blue-l);color:var(--blue);}
-.rb-rez{background:var(--ora-l);color:var(--ora);}
+.rb-sza{background:var(–blue-l);color:var(–blue);}
+.rb-rez{background:var(–ora-l);color:var(–ora);}
 
 /* ── BANNERS ── */
-.warn-ban{background:var(--ora-l);border:1.5px solid var(--ora-b);border-radius:9px;padding:9px 12px;font-size:.8rem;color:var(--ora);font-weight:500;margin-bottom:8px;}
-.err-ban{background:var(--red-l);border:1.5px solid #e8b0b0;border-radius:9px;padding:9px 12px;font-size:.8rem;color:var(--red);font-weight:500;margin-bottom:8px;}
-.info-ban{background:var(--blue-l);border:1.5px solid #aac8f0;border-radius:9px;padding:9px 12px;font-size:.8rem;color:var(--blue);font-weight:500;margin-bottom:8px;}
+.warn-ban{background:var(–ora-l);border:1.5px solid var(–ora-b);border-radius:9px;padding:9px 12px;font-size:.8rem;color:var(–ora);font-weight:500;margin-bottom:8px;}
+.err-ban{background:var(–red-l);border:1.5px solid #e8b0b0;border-radius:9px;padding:9px 12px;font-size:.8rem;color:var(–red);font-weight:500;margin-bottom:8px;}
+.info-ban{background:var(–blue-l);border:1.5px solid #aac8f0;border-radius:9px;padding:9px 12px;font-size:.8rem;color:var(–blue);font-weight:500;margin-bottom:8px;}
 
 /* ── DOCTORS ── */
-.doc-item{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;background:var(--bg);border-radius:10px;border:1px solid var(--bord);margin-bottom:6px;gap:8px;}
+.doc-item{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;background:var(–bg);border-radius:10px;border:1px solid var(–bord);margin-bottom:6px;gap:8px;}
 .doc-info{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
 .doc-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.88rem;flex-shrink:0;}
-.av-s{background:var(--blue-l);color:var(--blue);}
-.av-r{background:var(--ora-l);color:var(--ora);}
+.av-s{background:var(–blue-l);color:var(–blue);}
+.av-r{background:var(–ora-l);color:var(–ora);}
 .doc-name{font-weight:600;font-size:.9rem;}
-.doc-meta{font-size:.72rem;color:var(--tx2);margin-top:2px;}
+.doc-meta{font-size:.72rem;color:var(–tx2);margin-top:2px;}
 .cap-pills{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;}
 .cp{font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:20px;border:1.5px solid;}
-.cp-off{background:var(--sur2);color:var(--tx2);border-color:var(--bord);}
-.cp-ab{background:var(--blue-l);color:var(--blue);border-color:var(--blue2);}
-.cp-pic{background:var(--pic-l);color:var(--pic);border-color:var(--pic);}
-.cp-kz{background:var(--yel-l);color:var(--yel);border-color:#c8b800;}
-.cp-bh{background:var(--ora-l);color:var(--ora);border-color:var(--ora-b);}
-.g-lbl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--tx2);margin:10px 0 5px;}
+.cp-off{background:var(–sur2);color:var(–tx2);border-color:var(–bord);}
+.cp-ab{background:var(–blue-l);color:var(–blue);border-color:var(–blue2);}
+.cp-pic{background:var(–pic-l);color:var(–pic);border-color:var(–pic);}
+.cp-kz{background:var(–yel-l);color:var(–yel);border-color:#c8b800;}
+.cp-bh{background:var(–ora-l);color:var(–ora);border-color:var(–ora-b);}
+.g-lbl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(–tx2);margin:10px 0 5px;}
 
 /* ── LIST ── */
-.list-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 11px;border-radius:9px;border:1px solid var(--bord);background:var(--bg);margin-bottom:5px;}
-.list-row.lw{border-color:var(--ora);}
-.list-row.le{border-color:var(--red);}
+.list-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 11px;border-radius:9px;border:1px solid var(–bord);background:var(–bg);margin-bottom:5px;}
+.list-row.lw{border-color:var(–ora);}
+.list-row.le{border-color:var(–red);}
 .ld{font-weight:700;font-size:.8rem;min-width:84px;}
 .wb{font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:20px;}
-.wb-ab{background:var(--blue-l);color:var(--blue);}
-.wb-pic{background:var(--pic-l);color:var(--pic);}
-.wb-ex{background:var(--green-l);color:var(--green);}
-.wb-kz{background:var(--yel-l);color:var(--yel);}
-.wb-bh{background:var(--ora-l);color:var(--ora);}
+.wb-ab{background:var(–blue-l);color:var(–blue);}
+.wb-pic{background:var(–pic-l);color:var(–pic);}
+.wb-ex{background:var(–green-l);color:var(–green);}
+.wb-kz{background:var(–yel-l);color:var(–yel);}
+.wb-bh{background:var(–ora-l);color:var(–ora);}
 
 /* ── STATS ── */
 .sg{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:12px;}
 @media(min-width:500px){.sg{grid-template-columns:repeat(4,1fr);}}
-.sc{background:var(--bg);border:1px solid var(--bord);border-radius:11px;padding:12px;text-align:center;}
-.sn{font-family:'DM Serif Display',serif;font-size:1.85rem;color:var(--blue);line-height:1;}
-.sl{font-size:.72rem;color:var(--tx2);margin-top:3px;}
+.sc{background:var(–bg);border:1px solid var(–bord);border-radius:11px;padding:12px;text-align:center;}
+.sn{font-family:‘DM Serif Display’,serif;font-size:1.85rem;color:var(–blue);line-height:1;}
+.sl{font-size:.72rem;color:var(–tx2);margin-top:3px;}
 
 /* ── MODAL ── */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.46);z-index:200;align-items:flex-end;justify-content:center;padding:0;}
 .overlay.open{display:flex;}
 .modal{background:#fff;border-radius:18px 18px 0 0;padding:20px 18px 28px;width:100%;max-height:92vh;overflow-y:auto;animation:su .22s ease;}
 @media(min-width:600px){
-  .overlay{align-items:center;padding:14px;}
-  .modal{border-radius:17px;max-width:440px;}
+.overlay{align-items:center;padding:14px;}
+.modal{border-radius:17px;max-width:440px;}
 }
 @keyframes su{from{transform:translateY(22px);opacity:0}to{transform:translateY(0);opacity:1}}
-.modal-handle{width:36px;height:4px;background:var(--bord);border-radius:2px;margin:0 auto 14px;}
-.modal-title{font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:13px;}
+.modal-handle{width:36px;height:4px;background:var(–bord);border-radius:2px;margin:0 auto 14px;}
+.modal-title{font-family:‘DM Serif Display’,serif;font-size:1.1rem;margin-bottom:13px;}
 .mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;}
-.con-item{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--bg);border-radius:9px;border:1px solid var(--bord);margin-bottom:5px;font-size:.84rem;gap:8px;}
+.con-item{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(–bg);border-radius:9px;border:1px solid var(–bord);margin-bottom:5px;font-size:.84rem;gap:8px;}
 
 /* ── TOAST ── */
-.toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--tx);color:#fff;padding:9px 20px;border-radius:28px;font-size:.83rem;font-weight:600;z-index:999;transition:transform .28s ease;pointer-events:none;white-space:nowrap;visibility:hidden;}
+.toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(120px);background:var(–tx);color:#fff;padding:9px 20px;border-radius:28px;font-size:.83rem;font-weight:600;z-index:999;transition:transform .28s ease;pointer-events:none;white-space:nowrap;visibility:hidden;}
 .toast.show{transform:translateX(-50%) translateY(0);visibility:visible;}
 @media(min-width:700px){.toast{bottom:24px;}}
 
@@ -448,7 +417,22 @@ label{font-size:.78rem;font-weight:600;color:var(--tx2);display:block;margin-bot
 </div>
 <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
 
-<script>
+<script type="module">
+// ── Firebase imports ──
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc as fbDoc, setDoc, deleteDoc as fbDeleteDoc, onSnapshot, writeBatch }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const _app = initializeApp({
+  apiKey: "AIzaSyCVkMbKkorbK4v3RBrIA21_iuLX0S-td4Y",
+  authDomain: "gyermekcentrum-ugyelet.firebaseapp.com",
+  projectId: "gyermekcentrum-ugyelet",
+  storageBucket: "gyermekcentrum-ugyelet.firebasestorage.app",
+  messagingSenderId: "568804787959",
+  appId: "1:568804787959:web:e12cc0169dadafe7b1f5f2"
+});
+const db = getFirestore(_app);
+
 // ================================================================
 // WARDS:
 //   ab          – A+B osztály (hétköznap 1 orvos, hétvégén 1. orvos)
@@ -482,33 +466,33 @@ function showLoader(msg='Betöltés...'){
 }
 function hideLoader(){ document.getElementById('loadOverlay').style.display='none'; }
 
-async function saveDoctor(doc_obj){
-  await window._setDoc(window._doc(window._db,'doctors',String(doc_obj.id)), doc_obj);
+async function fbSaveDoctor(doc_obj){
+  await setDoc(fbDoc(db,'doctors',String(doc_obj.id)), doc_obj);
 }
-async function saveShift(shift){
-  await window._setDoc(window._doc(window._db,'shifts',String(shift.id)), shift);
+async function fbSaveShift(shift){
+  await setDoc(fbDoc(db,'shifts',String(shift.id)), shift);
 }
-async function removeDoctor(id){
-  await window._deleteDoc(window._doc(window._db,'doctors',String(id)));
+async function fbRemoveDoctor(id){
+  await fbDeleteDoc(fbDoc(db,'doctors',String(id)));
 }
-async function removeShift(id){
-  await window._deleteDoc(window._doc(window._db,'shifts',String(id)));
+async function fbRemoveShift(id){
+  await fbDeleteDoc(fbDoc(db,'shifts',String(id)));
 }
-async function saveShiftsBatch(arr){
+async function fbSaveShiftsBatch(arr){
   // Write up to 500 docs in one batch
-  const batch=window._writeBatch(window._db);
-  arr.forEach(s=>batch.set(window._doc(window._db,'shifts',String(s.id)),s));
+  const batch=writeBatch(db);
+  arr.forEach(s=>batch.set(fbDoc(db,'shifts',String(s.id)),s));
   await batch.commit();
 }
-async function deleteShiftsBatch(ids){
-  const batch=window._writeBatch(window._db);
-  ids.forEach(id=>batch.delete(window._doc(window._db,'shifts',String(id))));
+async function fbDeleteShiftsBatch(ids){
+  const batch=writeBatch(db);
+  ids.forEach(id=>batch.delete(fbDoc(db,'shifts',String(id))));
   await batch.commit();
 }
 
 function startListeners(){
   // Real-time doctors
-  window._onSnapshot(window._col(window._db,'doctors'), snap=>{
+  onSnapshot(collection(db,'doctors'), snap=>{
     doctors=snap.docs.map(d=>d.data());
     doctors.sort((a,b)=>a.id-b.id);
     if(doctors.length===0){ seedDoctors(); return; }
@@ -519,7 +503,7 @@ function startListeners(){
     hideLoader();
   });
   // Real-time shifts
-  window._onSnapshot(window._col(window._db,'shifts'), snap=>{
+  onSnapshot(collection(db,'shifts'), snap=>{
     shifts=snap.docs.map(d=>d.data());
     shifts.sort((a,b)=>a.date.localeCompare(b.date));
     const maxId=shifts.length?Math.max(...shifts.map(s=>s.id)):0;
@@ -538,8 +522,8 @@ async function seedDoctors(){
     {id:5,name:'Dr. Varga Léna',   role:'rezidens', capAB:true,capPIC:false,capKZ:true,capBH:false,phone:'',email:'',note:''},
   ];
   nextDId=6;
-  const batch=window._writeBatch(window._db);
-  seed.forEach(d=>batch.set(window._doc(window._db,'doctors',String(d.id)),d));
+  const batch=writeBatch(db);
+  seed.forEach(d=>batch.set(fbDoc(db,'doctors',String(d.id)),d));
   await batch.commit();
 }
 
@@ -790,11 +774,11 @@ async function saveShift(){
   const {date,ward}=shiftCtx;
   const isWarn=resViolation(date,ward,id);
   const oldShift=shifts.find(s=>s.date===date&&s.ward===ward);
-  if(oldShift) await removeShift(oldShift.id);
+  if(oldShift) await fbRemoveShift(oldShift.id);
   shifts=shifts.filter(s=>!(s.date===date&&s.ward===ward));
   const newShift={id:nextSId++,date,ward,doctorId:id,note:document.getElementById('smNote').value,isWarn};
   shifts.push(newShift);
-  await saveShift(newShift);
+  await fbSaveShift(newShift);
   closeModal('shiftModal');renderCal();
   if(openDate===date)renderPanel(date);
   toast(isWarn?'Mentve ⚠️ (rezidens figyelmeztetés)':'Mentve ✓');
@@ -803,7 +787,7 @@ async function saveShift(){
 async function deleteShift(){
   const {date,ward}=shiftCtx;
   const toDelete=shifts.find(s=>s.date===date&&s.ward===ward);
-  if(toDelete) await removeShift(toDelete.id);
+  if(toDelete) await fbRemoveShift(toDelete.id);
   shifts=shifts.filter(s=>!(s.date===date&&s.ward===ward));
   closeModal('shiftModal');renderCal();
   if(openDate===date)renderPanel(date);
@@ -874,11 +858,11 @@ async function saveDoc(){
     capBH:document.getElementById('dmBH').classList.contains('on')};
   if(editDocId){
     const d=doctors.find(x=>x.id===editDocId);
-    if(d){ Object.assign(d,data); await saveDoctor(d); }
+    if(d){ Object.assign(d,data); await fbSaveDoctor(d); }
   } else {
     const newDoc={id:nextDId++,...data};
     doctors.push(newDoc);
-    await saveDoctor(newDoc);
+    await fbSaveDoctor(newDoc);
   }
   closeModal('docModal');toast('Orvos mentve ✓');
 }
@@ -889,8 +873,8 @@ async function deleteDoc(){
   const delShiftIds=shifts.filter(s=>s.doctorId===editDocId).map(s=>s.id);
   doctors=doctors.filter(d=>d.id!==editDocId);
   shifts=shifts.filter(s=>s.doctorId!==editDocId);
-  await removeDoctor(editDocId);
-  if(delShiftIds.length) await deleteShiftsBatch(delShiftIds);
+  await fbRemoveDoctor(editDocId);
+  if(delShiftIds.length) await fbDeleteShiftsBatch(delShiftIds);
   closeModal('docModal');toast('Orvos törölve');
 }
 
@@ -1141,7 +1125,7 @@ async function deleteMonth(){
   showLoader('Törlés...');
   const toDelIds=shifts.filter(s=>s.date.startsWith(m)).map(s=>s.id);
   shifts=shifts.filter(s=>!s.date.startsWith(m));
-  await deleteShiftsBatch(toDelIds);
+  await fbDeleteShiftsBatch(toDelIds);
   renderCal();
   toast(`${label} beosztásai törölve (${count} db)`);
 }
@@ -1160,8 +1144,8 @@ async function acceptAuto(){
     newShifts.push(ns);
   });
   pendingAuto=[];
-  if(overwrittenIds.length) await deleteShiftsBatch(overwrittenIds);
-  await saveShiftsBatch(newShifts);
+  if(overwrittenIds.length) await fbDeleteShiftsBatch(overwrittenIds);
+  await fbSaveShiftsBatch(newShifts);
   document.getElementById('autoPreview').classList.add('hidden');
   renderCal();toast('Beosztások mentve ✓');showTab('naptar');
 }
@@ -1289,16 +1273,9 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/ugyelet/sw.js').catch(()=>{});
 }
 
-// Wait for Firebase then start listeners
-if(window._firebaseReady){
-  showLoader();
-  startListeners();
-} else {
-  window.addEventListener('firebaseReady',()=>{
-    showLoader();
-    startListeners();
-  });
-}
+// Firebase already initialized above — start listeners directly
+showLoader();
+startListeners();
 </script>
 
 </body>
