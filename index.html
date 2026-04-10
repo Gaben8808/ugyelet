@@ -387,48 +387,64 @@ label{font-size:.78rem;font-weight:600;color:var(--tx2);display:block;margin-bot
 <div class="overlay" id="infoModal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">ℹ️ Információk</div>
+    <div class="modal-title">ℹ️ Információk és Segítség</div>
     
     <div class="info-ban" style="margin-bottom:15px;">
       <strong>Ügyeleti Beosztó – Gyermekcentrum</strong><br>
-      <span style="font-size:0.8rem; line-height:1.4; display:block; margin-top:4px;">Ezt az alkalmazást a veszprémi Cholnoky Ferenc Kórház Gyermekosztályának készítettem, hogy megkönnyítsem az ügyeleti beosztások tervezését és nyomon követését.</span>
+      <span style="font-size:0.8rem; line-height:1.4; display:block; margin-top:4px;">
+        Ez az alkalmazás a Cholnoky Ferenc Kórház Gyermekosztályának mindennapi munkáját támogatja. 
+        Célja az ügyeleti tervezés automatizálása és a beosztások egyszerű, bárhonnan elérhető nyomon követése.
+      </span>
+    </div>
+
+    <div style="margin-bottom:15px; padding:10px; background:var(--sur2); border-radius:10px; font-size:0.8rem;">
+      <h4 style="font-size:0.85rem; margin-bottom:5px; color:var(--blue);">🛡️ Technológiai háttér és biztonság</h4>
+      <p style="color:var(--tx2); line-height:1.4;">
+        Az alkalmazás a legmodernebb felhőalapú megoldásokat használja. A fájlok kiszolgálását a <strong>GitHub</strong>, 
+        míg az adatok biztonságos, valós idejű tárolását a Google <strong>Firebase</strong> rendszere biztosítja. 
+        Ez a kombináció garantálja a magas szintű adatvédelmet és a folyamatos rendelkezésre állást.
+      </p>
+    </div>
+
+    <div style="margin-bottom:15px; padding:0 5px;">
+      <h4 style="font-size:0.85rem; margin-bottom:5px; color:var(--tx2);">⚖️ Jogi nyilatkozat</h4>
+      <p style="font-size:0.75rem; color:var(--tx2); line-height:1.4; font-style: italic;">
+        Az alkalmazás egyedi fejlesztés, hivatalos kórházi rendszerekkel közvetlen adatkapcsolatban nem áll. 
+        A beosztások tájékoztató jellegűek, a végső döntés minden esetben az osztályvezetés hatásköre. 
+        Személyes adatokat a megadott szakmai elérhetőségeken kívül a rendszer nem tárol.
+      </p>
     </div>
 
     <div style="margin-bottom:15px;">
-      <h4 style="font-size:0.9rem; margin-bottom:8px; color:var(--blue);">📱 Telepítés telefonra (PWA)</h4>
-      
-      <div class="con-item" style="display:block; margin-bottom:8px;">
-        <strong>🍏 iPhone (Safari böngésző)</strong>
-        <ol style="margin-top:5px; margin-bottom:0; padding-left:20px; font-size:0.8rem; color:var(--tx2); line-height:1.5;">
-          <li>Nyisd meg ezt a linket a <strong>Safari</strong> böngészőben.</li>
-          <li>Koppints az alul középen lévő <strong>Megosztás</strong> (négyzetből felfelé mutató nyíl) ikonra.</li>
-          <li>Görgess le, és válaszd a <strong>Főképernyőhöz adás</strong> opciót.</li>
-          <li>A jobb felső sarokban koppints a <strong>Hozzáadás</strong> gombra.</li>
-        </ol>
+      <h4 style="font-size:0.85rem; margin-bottom:8px; color:var(--blue);">📱 Telepítés (PWA)</h4>
+      <div class="con-item" style="display:block; margin-bottom:8px; border:1px solid var(--bord);">
+        <span style="font-size:0.8rem;"><strong>🍏 iPhone:</strong> Safari > Megosztás ikon > <strong>Főképernyőhöz adás</strong></span>
       </div>
-
-      <div class="con-item" style="display:block;">
-        <strong>🤖 Android (Chrome böngésző)</strong>
-        <ol style="margin-top:5px; margin-bottom:0; padding-left:20px; font-size:0.8rem; color:var(--tx2); line-height:1.5;">
-          <li>Nyisd meg ezt a linket a <strong>Chrome</strong> böngészőben.</li>
-          <li>Koppints a jobb felső sarokban lévő <strong>Menü</strong> (három pötty) ikonra.</li>
-          <li>Válaszd a <strong>Hozzáadás a kezdőképernyőhöz</strong> (vagy Alkalmazás telepítése) opciót.</li>
-          <li>Koppints a <strong>Telepítés</strong> vagy Hozzáadás gombra.</li>
-        </ol>
+      <div class="con-item" style="display:block; border:1px solid var(--bord);">
+        <span style="font-size:0.8rem;"><strong>🤖 Android:</strong> Chrome > Menü (3 pötty) > <strong>Telepítés / Hozzáadás</strong></span>
       </div>
     </div>
 
-    <div style="font-size:0.8rem; color:var(--tx2); text-align:center; margin-top:20px;">
-      <strong>Készítette:</strong> Kovács Gábor <br>
-      <span style="font-size:0.75rem; opacity:0.8;">Verzió: 1.0.0 · Offline módban is működik</span>
+    <div style="border-top:1px solid var(--bord); pt-3; margin-top:15px; padding-top:10px;">
+      <h4 style="font-size:0.85rem; margin-bottom:8px;">📧 Kapcsolat és Hibajelentés</h4>
+      <p style="font-size:0.8rem; color:var(--tx2); margin-bottom:8px;">
+        Fejlesztéssel, módosítással vagy hibajelentéssel kapcsolatban az alábbi címeken érhetsz el:
+      </p>
+      <div style="display:flex; flex-direction:column; gap:5px;">
+        <a href="mailto:info@wfw.hu" style="color:var(--blue); text-decoration:none; font-size:0.85rem; font-weight:600;">📩 info@wfw.hu</a>
+        <a href="mailto:kovacsgabor8808@gmail.com" style="color:var(--blue); text-decoration:none; font-size:0.85rem; font-weight:600;">📩 kovacsgabor8808@gmail.com</a>
+      </div>
     </div>
 
-    <div class="mfoot" style="margin-top:20px;">
-      <button class="btn btn-primary" style="width:100%; padding:12px;" onclick="closeModal('infoModal')">Bezárás</button>
+    <div style="font-size:0.75rem; color:var(--tx2); text-align:center; margin-top:20px; opacity:0.7;">
+      Készítette: Kovács Gábor · Verzió: 1.0.1
+    </div>
+
+    <div class="mfoot">
+      <button class="btn btn-primary" style="width:100%;" onclick="closeModal('infoModal')">Bezár</button>
     </div>
   </div>
 </div>
-
 
 <div class="toast" id="toast"></div>
 
