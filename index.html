@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Ügyeleti Beosztó – Cholnoky</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a4b8c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ügyeleti">
+<link rel="apple-touch-icon" href="icon-192.png">
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot, writeBatch }
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: “AIzaSyCVkMbKkorbK4v3RBrIA21_iuLX0S-td4Y”,
+authDomain: “gyermekcentrum-ugyelet.firebaseapp.com”,
+projectId: “gyermekcentrum-ugyelet”,
+storageBucket: “gyermekcentrum-ugyelet.firebasestorage.app”,
+messagingSenderId: “568804787959”,
+appId: “1:568804787959:web:e12cc0169dadafe7b1f5f2”
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ── Expose DB helpers to global scope ──
+window._db = db;
+window._col = collection;
+window._doc = doc;
+window._setDoc = setDoc;
+window._getDocs = getDocs;
+window._deleteDoc = deleteDoc;
+window._onSnapshot = onSnapshot;
+window._writeBatch = writeBatch;
+window._firebaseReady = true;
+window.dispatchEvent(new Event(‘firebaseReady’));
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+:root {
+--bg:#f0f3f8; --sur:#fff; --sur2:#e8edf5; --bord:#d4dae6;
+--tx:#18202e; --tx2:#66707e;
+--blue:#1a4b8c; --blue2:#3474d4; --blue-l:#dce8f8;
+--green:#256640; --green-l:#d2eddb;
+--pic:#5c3496; --pic-l:#ebe0fa;
+--ora:#c96a0a; --ora-l:#fdecd8; --ora-b:#f0b07a;
+--red:#b52020; --red-l:#fce8e8;
+--yel:#8a6d00; --yel-l:#fef9d8;
+--r:13px; --sh:0 2px 14px rgba(0,0,0,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:15px;}
+
+/* ── HEADER ── */
+header{background:var(--blue);color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.22);}
+.h-title h1{font-family:'DM Serif Display',serif;font-size:1.08rem;font-weight:400;}
+.h-title p{font-size:.7rem;opacity:.72;margin-top:1px;}
+.h-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:7px 13px;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;}
+.h-btn:active{background:rgba(255,255,255,.28);}
+
+/* ── BOTTOM NAV (mobile-first) ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--sur);border-top:1px solid var(--bord);display:flex;z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,.08);}
+.bottom-nav button{flex:1;padding:9px 4px 10px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:.62rem;font-weight:500;color:var(--tx2);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .18s;}
+.bottom-nav button .nav-ico{font-size:1.25rem;line-height:1;}
+.bottom-nav button.active{color:var(--blue);}
+.bottom-nav button.active .nav-ico{transform:scale(1.1);}
+
+/* top nav for desktop */
+.top-nav{display:none;background:var(--sur);border-bottom:1px solid var(--bord);}
+.top-nav button{padding:11px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;color:var(--tx2);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;transition:all .18s;}
+.top-nav button.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+@media(min-width:700px){
+.bottom-nav{display:none;}
+.top-nav{display:flex;overflow-x:auto;}
+}
+
+main{padding:14px 13px;max-width:980px;margin:0 auto;padding-bottom:76px;}
+@media(min-width:700px){main{padding-bottom:20px;}}
+
+/* ── CARDS ── */
+.card{background:var(--sur);border-radius:var(--r);border:1px solid var(--bord);padding:15px;margin-bottom:12px;box-shadow:var(--sh);}
+.card-title{font-family:'DM Serif Display',serif;font-size:1rem;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+
+/* ── BUTTONS ── */
+.btn{padding:9px 16px;border-radius:9px;border:none;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .18s;min-height:40px;}
+.btn-primary{background:var(--blue);color:#fff;}
+.btn-primary:active{background:#133870;}
+.btn-sec{background:var(--sur2);color:var(--tx);border:1px solid var(--bord);}
+.btn-sec:active{background:var(--bord);}
+.btn-del{background:var(--red-l);color:var(--red);border:1px solid #e8b0b0;}
+.btn-sm{padding:6px 11px;font-size:.76rem;min-height:32px;}
+
+/* ── FORM ── */
+input,select,textarea{font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--tx);background:var(--bg);border:1.5px solid var(--bord);border-radius:9px;padding:9px 12px;width:100%;outline:none;transition:border-color .2s;-webkit-appearance:none;min-height:42px;}
+input:focus,select:focus,textarea:focus{border-color:var(--blue2);background:#fff;}
+label{font-size:.78rem;font-weight:600;color:var(--tx2);display:block;margin-bottom:4px;}
+.fr{margin-bottom:11px;}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+@media(max-width:420px){.fg2{grid-template-columns:1fr;}}
+
+/* ── TOGGLE ── */
+.tog{width:42px;height:24px;background:var(--bord);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;display:inline-block;}
+.tog.on{background:var(--blue);}
+.tog::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.18);}
+.tog.on::after{left:21px;}
+
+/* ── CALENDAR ── */
+.month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.month-title{font-family:'DM Serif Display',serif;font-size:1.05rem;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cal-dh{text-align:center;font-size:.64rem;font-weight:700;color:var(--tx2);padding:5px 0;text-transform:uppercase;letter-spacing:.04em;}
+.cal-day{background:var(--bg);border:1.5px solid var(--bord);border-radius:8px;padding:4px 3px;min-height:70px;cursor:pointer;overflow:hidden;position:relative;}
+.cal-day:active{background:#fff;}
+.cal-day.today{border-color:var(--blue);background:var(--blue-l);}
+.cal-day.empty{background:none;border-color:transparent;pointer-events:none;}
+.cal-day.weekend .dn{color:var(--red);}
+.cal-day.warn{border-color:var(--ora)!important;}
+.cal-day.ok{border-color:#60b87a;}
+.dn{font-size:.75rem;font-weight:700;color:var(--tx2);margin-bottom:2px;}
+.cal-day.today .dn{color:var(--blue);}
+.chip{font-size:.54rem;font-weight:600;padding:1px 4px;border-radius:3px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;line-height:1.4;}
+.c-ab{background:var(--blue);color:#fff;}
+.c-pic{background:var(--pic);color:#fff;}
+.c-ex{background:var(--green);color:#fff;}
+.c-kz{background:var(--yel-l);color:var(--yel);border:1px solid #e0d080;}
+.c-bh{background:var(--ora-l);color:var(--ora);border:1px solid var(--ora-b);}
+.c-warn{background:var(--ora);color:#fff;}
+
+/* ── DAY DETAIL PANEL ── */
+.day-panel{background:var(--sur);border:1px solid var(--bord);border-radius:var(--r);padding:14px;margin-bottom:12px;box-shadow:var(--sh);display:none;}
+.day-panel.open{display:block;}
+.dp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.dp-title{font-family:'DM Serif Display',serif;font-size:.98rem;}
+
+/* slot rows */
+.slot-group{margin-bottom:10px;}
+.slot-group-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--tx2);margin-bottom:5px;padding:0 2px;}
+.slot{display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:9px;border:1.5px solid var(--bord);margin-bottom:5px;background:var(--bg);}
+.slot.s-ab{border-color:var(--blue2);background:var(--blue-l);}
+.slot.s-pic{border-color:var(--pic);background:var(--pic-l);}
+.slot.s-ex{border-color:var(--green);background:var(--green-l);}
+.slot.s-kz{border-color:#c8b800;background:var(--yel-l);}
+.slot.s-bh{border-color:var(--ora-b);background:var(--ora-l);}
+.slot.s-warn{border-color:var(--red)!important;background:var(--red-l);}
+.sl-lbl{font-size:.73rem;font-weight:700;min-width:115px;flex-shrink:0;color:var(--tx2);}
+.sl-doc{font-size:.88rem;font-weight:500;flex:1;min-width:0;}
+.role-badge{font-size:.64rem;font-weight:700;padding:2px 7px;border-radius:20px;flex-shrink:0;white-space:nowrap;}
+.rb-sza{background:var(--blue-l);color:var(--blue);}
+.rb-rez{background:var(--ora-l);color:var(--ora);}
+
+/* ── BANNERS ── */
+.warn-ban{background:var(--ora-l);border:1.5px solid var(--ora-b);border-radius:9px;padding:9px 12px;font-size:.8rem;color:var(--ora);font-weight:500;margin-bottom:8px;}
+.err-ban{background:var(--red-l);border:1.5px solid #e8b0b0;border-radius:9px;padding:9px 12px;font-size:.8rem;color:var(--red);font-weight:500;margin-bottom:8px;}
+.info-ban{background:var(--blue-l);border:1.5px solid #aac8f0;border-radius:9px;padding:9px 12px;font-size:.8rem;color:var(--blue);font-weight:500;margin-bottom:8px;}
+
+/* ── DOCTORS ── */
+.doc-item{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;background:var(--bg);border-radius:10px;border:1px solid var(--bord);margin-bottom:6px;gap:8px;}
+.doc-info{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+.doc-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.88rem;flex-shrink:0;}
+.av-s{background:var(--blue-l);color:var(--blue);}
+.av-r{background:var(--ora-l);color:var(--ora);}
+.doc-name{font-weight:600;font-size:.9rem;}
+.doc-meta{font-size:.72rem;color:var(--tx2);margin-top:2px;}
+.cap-pills{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;}
+.cp{font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:20px;border:1.5px solid;}
+.cp-off{background:var(--sur2);color:var(--tx2);border-color:var(--bord);}
+.cp-ab{background:var(--blue-l);color:var(--blue);border-color:var(--blue2);}
+.cp-pic{background:var(--pic-l);color:var(--pic);border-color:var(--pic);}
+.cp-kz{background:var(--yel-l);color:var(--yel);border-color:#c8b800;}
+.cp-bh{background:var(--ora-l);color:var(--ora);border-color:var(--ora-b);}
+.g-lbl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--tx2);margin:10px 0 5px;}
+
+/* ── LIST ── */
+.list-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 11px;border-radius:9px;border:1px solid var(--bord);background:var(--bg);margin-bottom:5px;}
+.list-row.lw{border-color:var(--ora);}
+.list-row.le{border-color:var(--red);}
+.ld{font-weight:700;font-size:.8rem;min-width:84px;}
+.wb{font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:20px;}
+.wb-ab{background:var(--blue-l);color:var(--blue);}
+.wb-pic{background:var(--pic-l);color:var(--pic);}
+.wb-ex{background:var(--green-l);color:var(--green);}
+.wb-kz{background:var(--yel-l);color:var(--yel);}
+.wb-bh{background:var(--ora-l);color:var(--ora);}
+
+/* ── STATS ── */
+.sg{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:12px;}
+@media(min-width:500px){.sg{grid-template-columns:repeat(4,1fr);}}
+.sc{background:var(--bg);border:1px solid var(--bord);border-radius:11px;padding:12px;text-align:center;}
+.sn{font-family:'DM Serif Display',serif;font-size:1.85rem;color:var(--blue);line-height:1;}
+.sl{font-size:.72rem;color:var(--tx2);margin-top:3px;}
+
+/* ── MODAL ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.46);z-index:200;align-items:flex-end;justify-content:center;padding:0;}
+.overlay.open{display:flex;}
+.modal{background:#fff;border-radius:18px 18px 0 0;padding:20px 18px 28px;width:100%;max-height:92vh;overflow-y:auto;animation:su .22s ease;}
+@media(min-width:600px){
+.overlay{align-items:center;padding:14px;}
+.modal{border-radius:17px;max-width:440px;}
+}
+@keyframes su{from{transform:translateY(22px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-handle{width:36px;height:4px;background:var(--bord);border-radius:2px;margin:0 auto 14px;}
+.modal-title{font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:13px;}
+.mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;}
+.con-item{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--bg);border-radius:9px;border:1px solid var(--bord);margin-bottom:5px;font-size:.84rem;gap:8px;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--tx);color:#fff;padding:9px 20px;border-radius:28px;font-size:.83rem;font-weight:600;z-index:999;transition:transform .28s ease;pointer-events:none;white-space:nowrap;visibility:hidden;}
+.toast.show{transform:translateX(-50%) translateY(0);visibility:visible;}
+@media(min-width:700px){.toast{bottom:24px;}}
+
+.hidden{display:none!important;}
+</style>
+
+</head>
+<body>
+
+<header>
+<div class="h-title">
+<h1>🏥 Ügyeleti Beosztó</h1>
+<p>Cholnoky Ferenc Kórház – Gyermekcentrum</p>
+</div>
+<button class="h-btn" onclick="exportXLSX()">⬇ XLSX</button>
+</header>
+
+<!-- Desktop top nav -->
+
+<nav class="top-nav">
+<button class="active" onclick="showTab('naptar')">📅 Naptár</button>
+<button onclick="showTab('lista')">📋 Lista</button>
+<button onclick="showTab('orvosok')">👨‍⚕️ Orvosok</button>
+<button onclick="showTab('auto')">✨ Auto</button>
+<button onclick="showTab('stat')">📊 Statisztika</button>
+</nav>
+
+<main>
+
+<!-- NAPTÁR -->
+
+<div id="tab-naptar">
+<div class="card">
+<div class="month-nav">
+<button class="btn btn-sec btn-sm" onclick="chMonth(-1)">← Előző</button>
+<div class="month-title" id="monthTitle"></div>
+<button class="btn btn-sec btn-sm" onclick="chMonth(1)">Következő →</button>
+</div>
+<!-- legend -->
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px;">
+<span class="chip c-ab" style="display:inline-block;padding:2px 7px;">A+B</span>
+<span class="chip c-pic" style="display:inline-block;padding:2px 7px;">PIC/ITO</span>
+<span class="chip c-ex" style="display:inline-block;padding:2px 7px;">A+B extra</span>
+<span class="chip c-kz" style="display:inline-block;padding:2px 7px;">Készenlétes</span>
+<span class="chip c-bh" style="display:inline-block;padding:2px 7px;">Behívós</span>
+</div>
+<div class="cal-grid" id="calGrid"></div>
+</div>
+<div class="day-panel" id="dayPanel">
+<div class="dp-head">
+<span class="dp-title" id="dpTitle"></span>
+<button class="btn btn-sec btn-sm" onclick="closePanel()">✕</button>
+</div>
+<div id="dpWarns"></div>
+<div id="dpSlots"></div>
+</div>
+</div>
+
+<!-- LISTA -->
+
+<div id="tab-lista" class="hidden">
+<div class="card">
+<div class="card-title">📋 Beosztások</div>
+<div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px;">
+<select id="fM" style="flex:1;min-width:105px;" onchange="renderList()"><option value="">Minden hónap</option></select>
+<select id="fD" style="flex:1;min-width:120px;" onchange="renderList()"><option value="">Minden orvos</option></select>
+<select id="fW" style="flex:1;min-width:100px;" onchange="renderList()">
+<option value="">Minden típus</option>
+<option value="ab">A+B</option>
+<option value="pic">PIC/ITO</option>
+<option value="ab_extra">A+B extra</option>
+<option value="keszenletes">Készenlétes</option>
+<option value="behivos">Behívós</option>
+</select>
+</div>
+<div id="listBox"></div>
+</div>
+</div>
+
+<!-- ORVOSOK -->
+
+<div id="tab-orvosok" class="hidden">
+<div class="card">
+<div class="card-title">👨‍⚕️ Orvosok</div>
+<div id="docList"></div>
+<button class="btn btn-primary" style="margin-top:9px;width:100%;" onclick="openDocModal()">+ Új orvos</button>
+</div>
+<div class="info-ban" style="margin:0 0 12px;">
+💡 <strong>Jogosultságok:</strong> Minden orvosnál beállítható, hogy ügyelhet-e A+B, PIC/ITO osztályon, lehet-e készenlétes és/vagy behívós. Készenlétes és behívós csak szakorvos lehet. Az egymást követő nap szabály a készenlétes/behívós pozíciókra nem vonatkozik.
+</div>
+</div>
+
+<!-- AUTO -->
+
+<div id="tab-auto" class="hidden">
+
+<!-- TÖRLÉS kártya -->
+
+<div class="card" style="border-color:#e8b0b0;">
+<div class="card-title" style="color:var(--red);">🗑 Hónap törlése</div>
+<div class="fr">
+<label>Válassz hónapot</label>
+<select id="delMonth" style="font-size:.9rem;"></select>
+</div>
+<button class="btn btn-del" style="width:100%;padding:11px;margin-top:2px;" onclick="deleteMonth()">🗑 Hónap beosztásainak törlése</button>
+</div>
+
+<!-- GENERÁLÁS kártya -->
+
+<div class="card">
+<div class="card-title">✨ Beosztás generálása</div>
+<div class="fg2" style="margin-bottom:10px;">
+<div class="fr"><label>Kezdő dátum</label><input type="date" id="autoS"></div>
+<div class="fr"><label>Záró dátum</label><input type="date" id="autoE"></div>
+</div>
+<div style="margin-bottom:12px;">
+<label style="margin-bottom:7px;display:block;">Szabályok</label>
+<div class="con-item"><span>Egyenlő elosztás</span><div class="tog on" id="togEq" onclick="this.classList.toggle('on')"></div></div>
+<div class="con-item"><span>Nem ügyelhet 2 egymást követő napon</span><div class="tog on" id="togCon" onclick="this.classList.toggle('on')"></div></div>
+<div class="con-item"><span>Rezidens szabály betartása</span><div class="tog on" id="togRes" onclick="this.classList.toggle('on')"></div></div>
+<div class="con-item"><span>Meglévő beosztások megőrzése</span><div class="tog on" id="togKeep" onclick="this.classList.toggle('on')"></div></div>
+</div>
+<div class="fr">
+<label>Készenlétes/behívós generálása</label>
+<select id="autoKB">
+<option value="both">Mindkettő (készenlétes + behívós)</option>
+<option value="keszenletes">Csak készenlétes</option>
+<option value="behivos">Csak behívós</option>
+<option value="none">Egyik sem</option>
+</select>
+</div>
+<button class="btn btn-primary" style="width:100%;padding:12px;" onclick="autoGen()">✨ Generálás</button>
+</div>
+
+<div id="autoPreview" class="hidden">
+<div class="card">
+<div class="card-title">👁️ Előnézet</div>
+<div id="autoPrev"></div>
+<div style="display:flex;gap:9px;margin-top:11px;">
+<button class="btn btn-primary" onclick="acceptAuto()">✓ Mentés</button>
+<button class="btn btn-sec" onclick="document.getElementById('autoPreview').classList.add('hidden')">✗ Elvetés</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- STAT -->
+
+<div id="tab-stat" class="hidden">
+<div class="card">
+<div class="card-title">📊 Összesítő</div>
+<div class="sg" id="statsGrid"></div>
+</div>
+<div class="card">
+<div class="card-title">👤 Orvosok terhelése</div>
+<div id="docStats"></div>
+</div>
+</div>
+
+</main>
+
+<!-- Bottom nav (mobile) -->
+
+<nav class="bottom-nav">
+<button class="active" onclick="showTab('naptar')"><span class="nav-ico">📅</span>Naptár</button>
+<button onclick="showTab('lista')"><span class="nav-ico">📋</span>Lista</button>
+<button onclick="showTab('orvosok')"><span class="nav-ico">👨‍⚕️</span>Orvosok</button>
+<button onclick="showTab('auto')"><span class="nav-ico">✨</span>Auto</button>
+<button onclick="showTab('stat')"><span class="nav-ico">📊</span>Stat</button>
+</nav>
+
+<!-- MODAL: Shift -->
+
+<div class="overlay" id="shiftModal">
+<div class="modal">
+<div class="modal-handle"></div>
+<div class="modal-title" id="smTitle">Ügyelet</div>
+<div class="fr">
+<label>Orvos</label>
+<select id="smDoc" onchange="checkSmWarns()"></select>
+</div>
+<div id="smResWarn" class="warn-ban hidden">⚠️ Rezidens szabály: a másik pozícióban szakorvos szükséges.</div>
+<div id="smConWarn" class="err-ban hidden">🚫 Egymást követő nap – ez az orvos szomszédos napon már ügyel! (Készenlétes/behívósra ez a szabály nem vonatkozik.)</div>
+<div class="fr"><label>Megjegyzés</label><textarea id="smNote" rows="2" placeholder="Opcionális..."></textarea></div>
+<div class="mfoot">
+<button class="btn btn-del btn-sm" id="smDel" onclick="deleteShift()" style="display:none;">Törlés</button>
+<button class="btn btn-sec" onclick="closeModal('shiftModal')">Mégsem</button>
+<button class="btn btn-primary" onclick="saveShift()">Mentés</button>
+</div>
+</div>
+</div>
+
+<!-- MODAL: Doctor -->
+
+<div class="overlay" id="docModal">
+<div class="modal">
+<div class="modal-handle"></div>
+<div class="modal-title" id="dmTitle">Orvos adatai</div>
+<div class="fr"><label>Név</label><input type="text" id="dmName" placeholder="Dr. Példa Éva"></div>
+<div class="fg2">
+<div class="fr"><label>Típus</label>
+<select id="dmRole"><option value="szakorvos">Szakorvos</option><option value="rezidens">Rezidens</option></select>
+</div>
+<div class="fr"><label>Telefon <span style="font-weight:400;color:var(--tx2);">(pl. 307654321)</span></label><input type="tel" id="dmPhone" placeholder="307654321" oninput="formatPhone(this)" maxlength="18"></div>
+</div>
+<div class="fr"><label>Email</label><input type="email" id="dmEmail"></div>
+<div class="fr"><label>Megjegyzés</label><input type="text" id="dmNote" placeholder="pl. Pénteken nem tud"></div>
+<div style="margin-top:4px;">
+<label style="margin-bottom:8px;display:block;">Jogosultságok</label>
+<div class="con-item"><span>A+B osztályon ügyelhet</span><div class="tog on" id="dmAB" onclick="this.classList.toggle('on')"></div></div>
+<div class="con-item"><span>PIC/ITO-n ügyelhet</span><div class="tog" id="dmPIC" onclick="this.classList.toggle('on')"></div></div>
+<div class="con-item"><span>Készenlétes lehet <span style="font-size:.7rem;color:var(--tx2);">(csak szakorvos)</span></span><div class="tog on" id="dmKZ" onclick="this.classList.toggle('on')"></div></div>
+<div class="con-item"><span>Behívós lehet <span style="font-size:.7rem;color:var(--tx2);">(csak szakorvos)</span></span><div class="tog on" id="dmBH" onclick="this.classList.toggle('on')"></div></div>
+</div>
+<div class="mfoot">
+<button class="btn btn-del btn-sm" id="dmDel" onclick="deleteDoc()" style="display:none;">Törlés</button>
+<button class="btn btn-sec" onclick="closeModal('docModal')">Mégsem</button>
+<button class="btn btn-primary" onclick="saveDoc()">Mentés</button>
+</div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Loading overlay -->
+
+<div id="loadOverlay" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,.85);z-index:500;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
+<div style="width:40px;height:40px;border:3px solid var(--bord);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+<div id="loadMsg" style="font-size:.9rem;font-weight:600;color:var(--blue);">Betöltés...</div>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+
+<script>
+// ================================================================
+// WARDS:
+// ab – A+B osztály (hétköznap 1 orvos, hétvégén 1. orvos)
+// ab_extra – A+B extra (csak hétvégén, 2. orvos)
+// pic – PIC/ITO (minden nap 1 orvos)
+// keszenletes – Készenlétes (minden nap 1 orvos)
+// behivos – Behívós (minden nap 1 orvos)
+//
+// RULES:
+// • ab + pic cannot BOTH be residents on same day
+// • Same doctor cannot have shifts on 2 consecutive days
+// • ab/keszenletes/behivos/ab_extra: capAB required
+// • pic: capPIC required
+// ================================================================
+
+const SK = {DOCS:'chlnk_docs_v3', SHIFTS:'chlnk_shifts_v3'};
+const MONTHS=['Január','Február','Március','Április','Május','Június','Július','Augusztus','Szeptember','Október','November','December'];
+const DOWS=['V','H','K','Sze','Cs','P','Szo'];
+const today=new Date();
+
+let doctors=[], shifts=[], nextDId=1, nextSId=1;
+let editDocId=null, shiftCtx=null, openDate=null, pendingAuto=[];
+let curY, curM;
+
+// ── FIREBASE PERSIST ──
+// All writes go to Firestore; UI is driven by real-time listeners.
+
+function showLoader(msg='Betöltés...'){
+document.getElementById('loadOverlay').style.display='flex';
+document.getElementById('loadMsg').textContent=msg;
+}
+function hideLoader(){ document.getElementById('loadOverlay').style.display='none'; }
+
+async function saveDoctor(doc_obj){
+await window._setDoc(window._doc(window._db,'doctors',String(doc_obj.id)), doc_obj);
+}
+async function saveShift(shift){
+await window._setDoc(window._doc(window._db,'shifts',String(shift.id)), shift);
+}
+async function removeDoctor(id){
+await window._deleteDoc(window._doc(window._db,'doctors',String(id)));
+}
+async function removeShift(id){
+await window._deleteDoc(window._doc(window._db,'shifts',String(id)));
+}
+async function saveShiftsBatch(arr){
+// Write up to 500 docs in one batch
+const batch=window._writeBatch(window._db);
+arr.forEach(s=>batch.set(window._doc(window._db,'shifts',String(s.id)),s));
+await batch.commit();
+}
+async function deleteShiftsBatch(ids){
+const batch=window._writeBatch(window._db);
+ids.forEach(id=>batch.delete(window._doc(window._db,'shifts',String(id))));
+await batch.commit();
+}
+
+function startListeners(){
+// Real-time doctors
+window._onSnapshot(window._col(window._db,'doctors'), snap=>{
+doctors=snap.docs.map(d=>d.data());
+doctors.sort((a,b)=>a.id-b.id);
+if(doctors.length===0){ seedDoctors(); return; }
+const maxId=Math.max(...doctors.map(d=>d.id));
+if(maxId>=nextDId) nextDId=maxId+1;
+renderCal();
+renderDocs();
+hideLoader();
+});
+// Real-time shifts
+window._onSnapshot(window._col(window._db,'shifts'), snap=>{
+shifts=snap.docs.map(d=>d.data());
+shifts.sort((a,b)=>a.date.localeCompare(b.date));
+const maxId=shifts.length?Math.max(...shifts.map(s=>s.id)):0;
+if(maxId>=nextSId) nextSId=maxId+1;
+renderCal();
+hideLoader();
+});
+}
+
+async function seedDoctors(){
+const seed=[
+{id:1,name:'Dr. Kovács Anna', role:'szakorvos',capAB:true,capPIC:true, capKZ:true,capBH:true, phone:'+36 20 111 1111',email:'',note:''},
+{id:2,name:'Dr. Nagy Péter', role:'szakorvos',capAB:true,capPIC:true, capKZ:true,capBH:true, phone:'+36 30 222 2222',email:'',note:''},
+{id:3,name:'Dr. Tóth Mária', role:'szakorvos',capAB:true,capPIC:false,capKZ:true,capBH:true, phone:'+36 70 333 3333',email:'',note:''},
+{id:4,name:'Dr. Kiss Bálint', role:'rezidens', capAB:true,capPIC:false,capKZ:true,capBH:false,phone:'',email:'',note:''},
+{id:5,name:'Dr. Varga Léna', role:'rezidens', capAB:true,capPIC:false,capKZ:true,capBH:false,phone:'',email:'',note:''},
+];
+nextDId=6;
+const batch=window._writeBatch(window._db);
+seed.forEach(d=>batch.set(window._doc(window._db,'doctors',String(d.id)),d));
+await batch.commit();
+}
+
+// ── UTILS ──
+const pad=n=>String(n).padStart(2,'0');
+const fmtDate=(y,m,d)=>`${y}-${pad(m)}-${pad(d)}`;
+const isWE=date=>{const w=new Date(date).getDay();return w===0||w===6;};
+const getDoc=id=>doctors.find(d=>d.id===id);
+const prevD=date=>{const d=new Date(date);d.setDate(d.getDate()-1);return d.toISOString().slice(0,10);};
+const nextD=date=>{const d=new Date(date);d.setDate(d.getDate()+1);return d.toISOString().slice(0,10);};
+
+function toast(msg,ms=3000){
+const t=document.getElementById('toast');
+t.style.visibility='visible';
+t.textContent=msg;
+t.classList.add('show');
+clearTimeout(t._timer);
+t._timer=setTimeout(()=>{
+t.classList.remove('show');
+setTimeout(()=>{ t.style.visibility='hidden'; },300);
+},ms);
+}
+
+// Ward config
+const WARD_CFG={
+ab: {label:'A+B osztály', chip:'c-ab', slot:'s-ab', wb:'wb-ab'},
+ab_extra: {label:'A+B extra (hétvégi)',chip:'c-ex', slot:'s-ex', wb:'wb-ex'},
+pic: {label:'PIC/ITO', chip:'c-pic', slot:'s-pic', wb:'wb-pic'},
+keszenletes:{label:'Készenlétes', chip:'c-kz', slot:'s-kz', wb:'wb-kz'},
+behivos: {label:'Behívós', chip:'c-bh', slot:'s-bh', wb:'wb-bh'},
+};
+
+function expectedSlots(date){
+const weekend=isWE(date);
+const slots=[];
+if(weekend){
+slots.push({ward:'ab',label:'A+B (1. orvos)'});
+slots.push({ward:'ab_extra',label:'A+B (2. orvos – hétvégi)'});
+} else {
+slots.push({ward:'ab',label:'A+B osztály'});
+}
+slots.push({ward:'pic',label:'PIC/ITO'});
+slots.push({ward:'keszenletes',label:'Készenlétes'});
+slots.push({ward:'behivos',label:'Behívós'});
+return slots;
+}
+
+function wardElig(ward){
+if(ward==='pic') return doctors.filter(d=>d.capPIC);
+if(ward==='keszenletes') return doctors.filter(d=>d.role==='szakorvos'&&d.capKZ!==false);
+if(ward==='behivos') return doctors.filter(d=>d.role==='szakorvos'&&d.capBH!==false);
+return doctors.filter(d=>d.capAB);
+}
+
+function resViolation(date, ovWard=null, ovDocId=null){
+const get=w=>{
+if(w===ovWard) return ovDocId?getDoc(ovDocId):null;
+const s=shifts.find(x=>x.date===date&&x.ward===w);
+return s?getDoc(s.doctorId):null;
+};
+const ab=get('ab'), pic=get('pic');
+return ab?.role==='rezidens'&&pic?.role==='rezidens';
+}
+
+const CONSEC_EXEMPT=['keszenletes','behivos'];
+function hasConsec(docId,date,ward=null){
+// keszenletes/behivos slots are exempt from the consecutive rule
+if(ward&&CONSEC_EXEMPT.includes(ward)) return false;
+const p=prevD(date),n=nextD(date);
+// Only count non-exempt shifts on adjacent days
+return shifts.some(s=>s.doctorId===docId&&!CONSEC_EXEMPT.includes(s.ward)&&(s.date===p||s.date===n));
+}
+
+function dayWarnings(date){
+const w=[];
+if(resViolation(date)) w.push({type:'warn',msg:'Két rezidens ügyel egyszerre (A+B és PIC/ITO)!'});
+const ds=shifts.filter(s=>s.date===date);
+const seen=new Set();
+ds.forEach(s=>{
+const key=s.doctorId+s.ward;
+if(!seen.has(key)&&hasConsec(s.doctorId,date,s.ward)){
+seen.add(key);
+w.push({type:'err',msg:`${getDoc(s.doctorId)?.name||'?'} egymást követő napokban ügyel (${WARD_CFG[s.ward]?.label||s.ward})!`});
+}
+});
+return w;
+}
+
+function dayComplete(date){
+return expectedSlots(date).every(sl=>shifts.find(s=>s.date===date&&s.ward===sl.ward));
+}
+
+// ── TABS ──
+const TABS=['naptar','lista','orvosok','auto','stat'];
+function showTab(name){
+TABS.forEach(t=>document.getElementById('tab-'+t).classList.toggle('hidden',t!==name));
+document.querySelectorAll('.top-nav button, .bottom-nav button').forEach((b,i)=>{
+b.classList.toggle('active',TABS[i%5]===name);
+});
+if(name==='stat') renderStats();
+if(name==='lista') {fillFilters();renderList();}
+if(name==='orvosok') renderDocs();
+if(name==='auto') fillDelMonthSelect();
+}
+
+// ── CALENDAR ──
+function initDate(){curY=today.getFullYear();curM=today.getMonth()+1;}
+function chMonth(d){curM+=d;if(curM>12){curM=1;curY++;}if(curM<1){curM=12;curY--;}renderCal();}
+
+function renderCal(){
+document.getElementById('monthTitle').textContent=`${curY}. ${MONTHS[curM-1]}`;
+const grid=document.getElementById('calGrid');
+grid.innerHTML='';
+['H','K','Sze','Cs','P','Szo','V'].forEach(d=>{
+const el=document.createElement('div');el.className='cal-dh';el.textContent=d;grid.appendChild(el);
+});
+const first=new Date(curY,curM-1,1).getDay();
+const off=first===0?6:first-1;
+const dim=new Date(curY,curM,0).getDate();
+const tod=fmtDate(today.getFullYear(),today.getMonth()+1,today.getDate());
+
+for(let i=0;i<off;i++){const e=document.createElement('div');e.className='cal-day empty';grid.appendChild(e);}
+for(let d=1;d<=dim;d++){
+const date=fmtDate(curY,curM,d);
+const dow=new Date(curY,curM-1,d).getDay();
+const dayShifts=shifts.filter(s=>s.date===date);
+const warns=dayWarnings(date);
+const complete=dayComplete(date);
+const el=document.createElement('div');
+el.className='cal-day'+(dow===0||dow===6?' weekend':'')+(date===tod?' today':'')
++(warns.length?' warn':complete&&dayShifts.length?' ok':'');
+el.onclick=()=>openPanel(date);
+
+const dn=document.createElement('div');dn.className='dn';dn.textContent=d;el.appendChild(dn);
+
+// Show chips: ab/ab_extra/pic on top, then kz/bh below
+['ab','ab_extra','pic','keszenletes','behivos'].forEach(w=>{
+const s=dayShifts.find(x=>x.ward===w);
+if(s){
+const doc=getDoc(s.doctorId);
+const chip=document.createElement('div');
+chip.className='chip '+WARD_CFG[w].chip;
+// Short label: first name initial
+const shortName=doc?doc.name.replace('Dr.','').trim().split(' ').map((p,i)=>i===0?p:p[0]+'.').join(' '):'?';
+chip.textContent=shortName;
+el.appendChild(chip);
+}
+});
+if(warns.length){const wc=document.createElement('div');wc.className='chip c-warn';wc.textContent=`⚠ ${warns.length}`;el.appendChild(wc);}
+grid.appendChild(el);
+}
+}
+
+// ── DAY PANEL ──
+function openPanel(date){
+openDate=date;
+const dt=new Date(date);
+document.getElementById('dpTitle').textContent=
+`${dt.getFullYear()}. ${MONTHS[dt.getMonth()]} ${dt.getDate()}. (${DOWS[dt.getDay()]})`;
+renderPanel(date);
+const p=document.getElementById('dayPanel');
+p.classList.add('open');
+setTimeout(()=>p.scrollIntoView({behavior:'smooth',block:'nearest'}),40);
+}
+function closePanel(){document.getElementById('dayPanel').classList.remove('open');openDate=null;}
+
+function renderPanel(date){
+const warns=dayWarnings(date);
+document.getElementById('dpWarns').innerHTML=warns.map(w=>
+`<div class="${w.type==='err'?'err-ban':'warn-ban'}">⚠️ ${w.msg}</div>`
+).join('');
+
+// Group slots visually
+const slots=expectedSlots(date);
+// Group 1: Ügyelet (ab, ab_extra, pic)
+// Group 2: Készültség (keszenletes, behivos)
+const ug=slots.filter(s=>['ab','ab_extra','pic'].includes(s.ward));
+const kb=slots.filter(s=>['keszenletes','behivos'].includes(s.ward));
+
+let html='';
+html+=`<div class="slot-group"><div class="slot-group-title">🏥 Ügyeletes orvosok</div>`;
+html+=ug.map(sl=>slotHTML(date,sl)).join('');
+html+=`</div>`;
+html+=`<div class="slot-group"><div class="slot-group-title">📞 Készültség</div>`;
+html+=kb.map(sl=>slotHTML(date,sl)).join('');
+html+=`</div>`;
+
+document.getElementById('dpSlots').innerHTML=html;
+}
+
+function slotHTML(date,sl){
+const s=shifts.find(x=>x.date===date&&x.ward===sl.ward);
+const doc=s?getDoc(s.doctorId):null;
+const cls=s?WARD_CFG[sl.ward].slot:'';
+const consec=s&&hasConsec(s.doctorId,date,sl.ward);
+return `<div class="slot ${cls}${consec?' s-warn':''}">
+<span class="sl-lbl">${sl.label}</span>
+${doc
+?`<span class="sl-doc">${doc.name}${s.note?` <em style="color:var(--tx2);font-size:.75rem;"> – ${s.note}</em>`:''}</span>
+<span class="role-badge ${doc.role==='szakorvos'?'rb-sza':'rb-rez'}">${doc.role==='szakorvos'?'Szak.':'Rez.'}</span>`
+:`<span class="sl-doc" style="color:var(--tx2);font-style:italic;">Nincs beosztva</span>`}
+<button class="btn btn-sec btn-sm" onclick="openShiftModal('${date}','${sl.ward}')">${s?'✏️':'+'}</button>
+</div>`;
+}
+
+// ── SHIFT MODAL ──
+function openShiftModal(date,ward){
+shiftCtx={date,ward};
+const existing=shifts.find(s=>s.date===date&&s.ward===ward);
+const dt=new Date(date);
+document.getElementById('smTitle').textContent=
+`${WARD_CFG[ward].label} – ${dt.getFullYear()}. ${MONTHS[dt.getMonth()]} ${dt.getDate()}.`;
+
+const elig=wardElig(ward);
+const sel=document.getElementById('smDoc');
+sel.innerHTML='<option value="">– Válassz orvost –</option>'+
+elig.map(d=>`<option value="${d.id}">${d.name} (${d.role==='szakorvos'?'Szakorvos':'Rezidens'})</option>`).join('');
+
+if(existing){
+if(!elig.find(d=>d.id===existing.doctorId)){
+const doc=getDoc(existing.doctorId);
+if(doc) sel.innerHTML+=`<option value="${doc.id}">⚠️ ${doc.name}</option>`;
+}
+sel.value=existing.doctorId;
+document.getElementById('smNote').value=existing.note||'';
+document.getElementById('smDel').style.display='inline-block';
+} else {
+sel.value='';document.getElementById('smNote').value='';
+document.getElementById('smDel').style.display='none';
+}
+checkSmWarns();
+document.getElementById('shiftModal').classList.add('open');
+}
+
+function checkSmWarns(){
+if(!shiftCtx) return;
+const id=parseInt(document.getElementById('smDoc').value);
+const doc=getDoc(id);
+document.getElementById('smResWarn').classList.toggle('hidden',
+!(doc?.role==='rezidens'&&resViolation(shiftCtx.date,shiftCtx.ward,id)));
+document.getElementById('smConWarn').classList.toggle('hidden',
+!(id&&hasConsec(id,shiftCtx.date,shiftCtx.ward)));
+}
+
+async function saveShift(){
+const id=parseInt(document.getElementById('smDoc').value);
+if(!id){toast('Válassz orvost!');return;}
+const {date,ward}=shiftCtx;
+const isWarn=resViolation(date,ward,id);
+const oldShift=shifts.find(s=>s.date===date&&s.ward===ward);
+if(oldShift) await removeShift(oldShift.id);
+shifts=shifts.filter(s=>!(s.date===date&&s.ward===ward));
+const newShift={id:nextSId++,date,ward,doctorId:id,note:document.getElementById('smNote').value,isWarn};
+shifts.push(newShift);
+await saveShift(newShift);
+closeModal('shiftModal');renderCal();
+if(openDate===date)renderPanel(date);
+toast(isWarn?'Mentve ⚠️ (rezidens figyelmeztetés)':'Mentve ✓');
+}
+
+async function deleteShift(){
+const {date,ward}=shiftCtx;
+const toDelete=shifts.find(s=>s.date===date&&s.ward===ward);
+if(toDelete) await removeShift(toDelete.id);
+shifts=shifts.filter(s=>!(s.date===date&&s.ward===ward));
+closeModal('shiftModal');renderCal();
+if(openDate===date)renderPanel(date);
+toast('Ügyelet törölve');
+}
+
+// ── DOCTORS ──
+function renderDocs(){
+function grp(arr,title){
+if(!arr.length) return '';
+return `<div class="g-lbl">${title}</div>`+arr.map(doc=>{
+const ini=doc.name.replace('Dr.','').trim().split(' ').map(w=>w[0]).slice(0,2).join('');
+const cnt=shifts.filter(s=>s.doctorId===doc.id).length;
+return `<div class="doc-item">
+<div class="doc-info">
+<div class="doc-av av-${doc.role==='szakorvos'?'s':'r'}">${ini}</div>
+<div>
+<div class="doc-name">${doc.name}</div>
+<div class="doc-meta">${doc.phone||''}${doc.note?' · '+doc.note:''}</div>
+<div class="cap-pills">
+<span class="cp ${doc.capAB?'cp-ab':'cp-off'}">A+B ${doc.capAB?'✓':'✗'}</span>
+<span class="cp ${doc.capPIC?'cp-pic':'cp-off'}">PIC/ITO ${doc.capPIC?'✓':'✗'}</span>
+<span class="cp ${doc.capKZ!==false?'cp-kz':'cp-off'}">Kész. ${doc.capKZ!==false?'✓':'✗'}</span>
+<span class="cp ${doc.capBH!==false?'cp-bh':'cp-off'}">Behívós ${doc.capBH!==false?'✓':'✗'}</span>
+</div>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+<span style="font-size:.7rem;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--sur2);color:var(--tx2);">${cnt}</span>
+<button class="btn btn-sec btn-sm" onclick="openDocModal(${doc.id})">✏️</button>
+</div>
+</div>`;
+}).join('');
+}
+const el=document.getElementById('docList');
+const sza=doctors.filter(d=>d.role==='szakorvos');
+const rez=doctors.filter(d=>d.role==='rezidens');
+el.innerHTML=grp(sza,'Szakorvosok')+grp(rez,'Rezidensek');
+if(!doctors.length) el.innerHTML='<p style="color:var(--tx2);">Nincs orvos felvéve.</p>';
+}
+
+function openDocModal(id){
+editDocId=id||null;
+const doc=id?doctors.find(d=>d.id===id):null;
+document.getElementById('dmTitle').textContent=doc?'Orvos szerkesztése':'Új orvos';
+document.getElementById('dmName').value=doc?doc.name:'';
+document.getElementById('dmRole').value=doc?doc.role:'szakorvos';
+document.getElementById('dmPhone').value=doc?doc.phone:'';
+document.getElementById('dmEmail').value=doc?doc.email:'';
+document.getElementById('dmNote').value=doc?doc.note:'';
+document.getElementById('dmAB').classList.toggle('on',doc?doc.capAB:true);
+document.getElementById('dmPIC').classList.toggle('on',doc?doc.capPIC:false);
+document.getElementById('dmKZ').classList.toggle('on',doc?doc.capKZ!==false:true);
+document.getElementById('dmBH').classList.toggle('on',doc?doc.capBH!==false:true);
+document.getElementById('dmDel').style.display=doc?'inline-block':'none';
+document.getElementById('docModal').classList.add('open');
+}
+
+async function saveDoc(){
+const name=document.getElementById('dmName').value.trim();
+if(!name){toast('A név kötelező!');return;}
+const data={name,role:document.getElementById('dmRole').value,
+phone:document.getElementById('dmPhone').value,email:document.getElementById('dmEmail').value,
+note:document.getElementById('dmNote').value,
+capAB:document.getElementById('dmAB').classList.contains('on'),
+capPIC:document.getElementById('dmPIC').classList.contains('on'),
+capKZ:document.getElementById('dmKZ').classList.contains('on'),
+capBH:document.getElementById('dmBH').classList.contains('on')};
+if(editDocId){
+const d=doctors.find(x=>x.id===editDocId);
+if(d){ Object.assign(d,data); await saveDoctor(d); }
+} else {
+const newDoc={id:nextDId++,...data};
+doctors.push(newDoc);
+await saveDoctor(newDoc);
+}
+closeModal('docModal');toast('Orvos mentve ✓');
+}
+
+async function deleteDoc(){
+const doc=doctors.find(d=>d.id===editDocId);
+if(!confirm(`Biztosan törlöd: ${doc?.name}?`)) return;
+const delShiftIds=shifts.filter(s=>s.doctorId===editDocId).map(s=>s.id);
+doctors=doctors.filter(d=>d.id!==editDocId);
+shifts=shifts.filter(s=>s.doctorId!==editDocId);
+await removeDoctor(editDocId);
+if(delShiftIds.length) await deleteShiftsBatch(delShiftIds);
+closeModal('docModal');toast('Orvos törölve');
+}
+
+// ── LIST ──
+function fillFilters(){
+const months=[...new Set(shifts.map(s=>s.date.slice(0,7)))].sort();
+const mS=document.getElementById('fM'),mc=mS.value;
+mS.innerHTML='<option value="">Minden hónap</option>'+months.map(m=>{
+const[y,mo]=m.split('-');
+return `<option value="${m}"${m===mc?' selected':''}>${y}. ${MONTHS[parseInt(mo)-1]}</option>`;
+}).join('');
+const dS=document.getElementById('fD'),dc=dS.value;
+dS.innerHTML='<option value="">Minden orvos</option>'+doctors.map(d=>
+`<option value="${d.id}"${String(d.id)===dc?' selected':''}>${d.name}</option>`).join('');
+}
+
+function renderList(){
+const mF=document.getElementById('fM').value;
+const dF=document.getElementById('fD').value;
+const wF=document.getElementById('fW').value;
+let list=shifts.filter(s=>{
+if(mF&&!s.date.startsWith(mF)) return false;
+if(dF&&String(s.doctorId)!==dF) return false;
+if(wF&&s.ward!==wF) return false;
+return true;
+}).sort((a,b)=>a.date.localeCompare(b.date)||a.ward.localeCompare(b.ward));
+const box=document.getElementById('listBox');
+if(!list.length){box.innerHTML='<p style="color:var(--tx2);font-size:.88rem;">Nincs találat.</p>';return;}
+box.innerHTML=list.map(s=>{
+const doc=getDoc(s.doctorId);
+const dt=new Date(s.date);
+const dl=`${MONTHS[dt.getMonth()].slice(0,3)} ${dt.getDate()}. (${DOWS[dt.getDay()]})`;
+const consec=hasConsec(s.doctorId,s.date,s.ward);
+const wc=WARD_CFG[s.ward]||{label:s.ward,wb:'wb-ab'};
+return `<div class="list-row${s.isWarn?' lw':''}${consec?' le':''}">
+<span class="ld">${dl}</span>
+<span class="wb ${wc.wb}">${wc.label.replace(' osztály','').replace(' (hétvégi)','')}</span>
+<span style="font-size:.85rem;font-weight:500;flex:1;">${doc?doc.name:'?'}</span>
+${s.isWarn?'<span title="Rezidens warn">⚠️</span>':''}
+${consec?'<span title="Egymást követő">🔴</span>':''}
+<button class="btn btn-sec btn-sm" onclick="goDetail('${s.date}')">📅</button>
+</div>`;
+}).join('');
+}
+function goDetail(date){showTab('naptar');setTimeout(()=>openPanel(date),60);}
+
+// ── AUTO GENERATE ──
+function autoGen(forceKeep=null){
+const start=document.getElementById('autoS').value;
+const end=document.getElementById('autoE').value;
+if(!start||!end){toast('Add meg az időszakot!');return;}
+if(!doctors.length){toast('Nincs orvos!');return;}
+if(start>end){toast('Hibás időszak!');return;}
+
+const doEq = document.getElementById('togEq').classList.contains('on');
+const doCon = document.getElementById('togCon').classList.contains('on');
+const doRes = document.getElementById('togRes').classList.contains('on');
+const doKeep = forceKeep!==null ? forceKeep : document.getElementById('togKeep').classList.contains('on');
+const kbMode = document.getElementById('autoKB').value;
+
+// Eligible doctors per ward – always re-evaluate from current doctors array
+function elig(ward){
+return doctors.filter(d=>{
+if(ward==='ab' || ward==='ab_extra') return d.capAB===true;
+if(ward==='pic') return d.capPIC===true;
+if(ward==='keszenletes') return d.role==='szakorvos' && d.capKZ===true;
+if(ward==='behivos') return d.role==='szakorvos' && d.capBH===true;
+return false;
+});
+}
+
+// Shifts in the target range only (for consecutive check)
+const rangeShifts = shifts.filter(s=>s.date>=start&&s.date<=end);
+
+// Count all existing shifts per doctor (for equal distribution)
+const counters = {};
+doctors.forEach(d=>{ counters[d.id]=shifts.filter(s=>s.doctorId===d.id).length; });
+
+const generated = [];
+const warnings = [];
+
+// Days on which doctor has a non-KB shift (for consecutive rule)
+// Built dynamically as we generate
+const dutyDays = {}; // docId -> Set of dates with non-KB shifts
+doctors.forEach(d=>{
+dutyDays[d.id]=new Set(
+shifts.filter(s=>s.doctorId===d.id && !CONSEC_EXEMPT.includes(s.ward)).map(s=>s.date)
+);
+});
+
+function isConsec(docId, date){
+if(!doCon) return false;
+const p=prevD(date), n=nextD(date);
+return dutyDays[docId]?.has(p) || dutyDays[docId]?.has(n);
+}
+
+function pickDoc(pool, excludeIds=[], date=null, isKB=false){
+let candidates = pool.filter(d=>!excludeIds.includes(d.id));
+if(!isKB && date) candidates = candidates.filter(d=>!isConsec(d.id, date));
+if(!candidates.length) return null;
+if(doEq) return candidates.slice().sort((a,b)=>counters[a.id]-counters[b.id])[0];
+return candidates[Math.floor(Math.random()*candidates.length)];
+}
+
+const cur=new Date(start), endD=new Date(end);
+while(cur<=endD){
+const date=cur.toISOString().slice(0,10);
+const weekend=isWE(date);
+
+// Slots for this day
+const slots=[];
+if(weekend){ slots.push('ab'); slots.push('ab_extra'); } else { slots.push('ab'); }
+slots.push('pic');
+if(kbMode==='both'||kbMode==='keszenletes') slots.push('keszenletes');
+if(kbMode==='both'||kbMode==='behivos') slots.push('behivos');
+
+// Doctors already used in non-KB slots today (to avoid double-booking on duty)
+const usedDuty = [];
+// Doctors already used in KB slots today (to avoid same doc getting both KB slots)
+const usedKB = [];
+
+// Pre-fill from existing kept shifts
+if(doKeep){
+shifts.filter(s=>s.date===date).forEach(s=>{
+if(CONSEC_EXEMPT.includes(s.ward)) usedKB.push(s.doctorId);
+else usedDuty.push(s.doctorId);
+});
+}
+
+slots.forEach(ward=>{
+// Skip if keeping existing
+if(doKeep && shifts.find(s=>s.date===date&&s.ward===ward)) return;
+
+const isKB = CONSEC_EXEMPT.includes(ward);
+const pool = elig(ward);
+let picked = null, isWarn = false;
+
+if(!isKB && doRes && (ward==='ab'||ward==='pic')){
+// Check what's assigned to the other core ward today
+const other = ward==='ab'?'pic':'ab';
+const otherDocId =
+generated.find(g=>g.date===date&&g.ward===other)?.doctorId ||
+(doKeep && shifts.find(s=>s.date===date&&s.ward===other)?.doctorId) ||
+null;
+const otherIsResident = getDoc(otherDocId)?.role==='rezidens';
+
+if(otherIsResident){
+// Must pick szakorvos
+const szakPool = pool.filter(d=>d.role==='szakorvos');
+picked = pickDoc(szakPool, usedDuty, date, false);
+if(!picked){
+// Fallback: ignore consecutive
+picked = szakPool.find(d=>!usedDuty.includes(d.id));
+if(picked) { isWarn=true; warnings.push(`${date}: Egymást követő kényszer mellőzve (${WARD_CFG[ward]?.label})`); }
+}
+if(!picked){
+// Last resort: any from pool
+picked = pickDoc(pool, usedDuty, date, false) || pool.find(d=>!usedDuty.includes(d.id));
+if(picked) { isWarn=true; warnings.push(`${date}: Nincs szabad szakorvos (${WARD_CFG[ward]?.label}) – rezidens figyelmeztetés`); }
+}
+} else {
+picked = pickDoc(pool, usedDuty, date, false);
+if(!picked){
+picked = pool.find(d=>!usedDuty.includes(d.id));
+if(picked) warnings.push(`${date}: Egymást követő kényszer mellőzve (${WARD_CFG[ward]?.label})`);
+}
+}
+} else if(isKB){
+picked = pickDoc(pool, usedKB, null, true);
+if(!picked) picked = pool[0]; // abszolút fallback
+} else {
+// ab_extra or ab without res rule
+picked = pickDoc(pool, usedDuty, date, false);
+if(!picked){
+picked = pool.find(d=>!usedDuty.includes(d.id));
+if(picked) warnings.push(`${date}: Egymást követő kényszer mellőzve (${WARD_CFG[ward]?.label})`);
+}
+}
+
+if(!picked){ warnings.push(`${date}: Nincs elérhető orvos – ${WARD_CFG[ward]?.label||ward}`); return; }
+
+// Register the assignment
+counters[picked.id] = (counters[picked.id]||0)+1;
+if(isKB){
+usedKB.push(picked.id);
+} else {
+usedDuty.push(picked.id);
+if(!dutyDays[picked.id]) dutyDays[picked.id]=new Set();
+dutyDays[picked.id].add(date);
+}
+generated.push({date, ward, doctorId:picked.id, note:'', isWarn});
+});
+
+cur.setDate(cur.getDate()+1);
+}
+
+pendingAuto=generated;
+
+// Render preview
+let html='';
+if(warnings.length) html+=`<div class="warn-ban" style="margin-bottom:10px;">⚠️ ${warnings.length} figyelmeztetés:<br>${warnings.slice(0,8).map(w=>`• ${w}`).join('<br>')}${warnings.length>8?`<br>… és ${warnings.length-8} további`:''}</div>`;
+if(!generated.length){
+html+='<p style="color:var(--tx2);">Minden slot már be van osztva a megadott időszakban.</p>';
+} else {
+html+=generated.slice(0,80).map(g=>{
+const doc=getDoc(g.doctorId); const dt=new Date(g.date);
+const wc=WARD_CFG[g.ward]||{label:g.ward,wb:'wb-ab'};
+return `<div class="list-row${g.isWarn?' lw':''}">
+<span class="ld" style="min-width:76px;">${MONTHS[dt.getMonth()].slice(0,3)} ${dt.getDate()}. (${DOWS[dt.getDay()]})</span>
+<span class="wb ${wc.wb}">${wc.label.replace(' osztály','').replace(' (hétvégi)','')}</span>
+<span style="flex:1;font-size:.86rem;font-weight:500;">${doc?doc.name:'?'}</span>
+<span style="font-size:.7rem;color:var(--tx2);">${doc?.role==='szakorvos'?'Szak.':'Rez.'}</span>
+${g.isWarn?'<span>⚠️</span>':''}
+</div>`;
+}).join('')+(generated.length>80?`<p style="font-size:.78rem;color:var(--tx2);margin-top:6px;">… és ${generated.length-80} további</p>`:'');
+}
+document.getElementById('autoPrev').innerHTML=html;
+document.getElementById('autoPreview').classList.remove('hidden');
+toast(`${generated.length} beosztás generálva${warnings.length?' ('+warnings.length+' figyelmeztetés)':' ✓'}`);
+}
+
+function fillDelMonthSelect(){
+const sel=document.getElementById('delMonth');
+if(!sel) return;
+// All months that have shifts, plus current and next month
+const monthSet=new Set(shifts.map(s=>s.date.slice(0,7)));
+const now=new Date();
+for(let i=-1;i<=3;i++){
+const d=new Date(now.getFullYear(),now.getMonth()+i,1);
+monthSet.add(d.toISOString().slice(0,7));
+}
+const months=[...monthSet].sort();
+const cur=sel.value||now.toISOString().slice(0,7);
+sel.innerHTML=months.map(m=>{
+const [y,mo]=m.split('-');
+return `<option value="${m}"${m===cur?' selected':''}>${y}. ${MONTHS[parseInt(mo)-1]}</option>`;
+}).join('');
+}
+
+async function deleteMonth(){
+const m=document.getElementById('delMonth').value;
+if(!m){toast('Válassz hónapot!');return;}
+const [y,mo]=m.split('-');
+const label=`${y}. ${MONTHS[parseInt(mo)-1]}`;
+const count=shifts.filter(s=>s.date.startsWith(m)).length;
+if(count===0){toast('Ebben a hónapban nincs beosztás.');return;}
+if(!confirm(`Biztosan törlöd ${label} összes beosztását? (${count} db)`)) return;
+showLoader('Törlés...');
+const toDelIds=shifts.filter(s=>s.date.startsWith(m)).map(s=>s.id);
+shifts=shifts.filter(s=>!s.date.startsWith(m));
+await deleteShiftsBatch(toDelIds);
+renderCal();
+toast(`${label} beosztásai törölve (${count} db)`);
+}
+
+
+async function acceptAuto(){
+showLoader('Mentés folyamatban...');
+const overwrittenIds=[];
+const newShifts=[];
+pendingAuto.forEach(g=>{
+const old=shifts.find(s=>s.date===g.date&&s.ward===g.ward);
+if(old) overwrittenIds.push(old.id);
+shifts=shifts.filter(s=>!(s.date===g.date&&s.ward===g.ward));
+const ns={id:nextSId++,...g};
+shifts.push(ns);
+newShifts.push(ns);
+});
+pendingAuto=[];
+if(overwrittenIds.length) await deleteShiftsBatch(overwrittenIds);
+await saveShiftsBatch(newShifts);
+document.getElementById('autoPreview').classList.add('hidden');
+renderCal();toast('Beosztások mentve ✓');showTab('naptar');
+}
+
+// ── STATS ──
+function renderStats(){
+const total=shifts.length;
+const thisM=shifts.filter(s=>s.date.startsWith(`${curY}-${pad(curM)}`)).length;
+const warnC=shifts.filter(s=>s.isWarn).length;
+const consecSet=new Set();
+shifts.forEach(s=>{if(hasConsec(s.doctorId,s.date,s.ward))consecSet.add(s.date+s.doctorId+s.ward);});
+
+document.getElementById('statsGrid').innerHTML=`
+<div class="sc"><div class="sn">${total}</div><div class="sl">Összes beosztás</div></div>
+<div class="sc"><div class="sn">${thisM}</div><div class="sl">Aktuális hónap</div></div>
+<div class="sc"><div class="sn" style="color:${warnC?'var(--ora)':'inherit'}">${warnC}</div><div class="sl">⚠️ Rezidens warn.</div></div>
+<div class="sc"><div class="sn" style="color:${consecSet.size?'var(--red)':'inherit'}">${consecSet.size}</div><div class="sl">🔴 Egymást követő</div></div>`;
+
+document.getElementById('docStats').innerHTML=doctors.map(doc=>{
+const all=shifts.filter(s=>s.doctorId===doc.id);
+const ab=all.filter(s=>s.ward==='ab'||s.ward==='ab_extra').length;
+const pic=all.filter(s=>s.ward==='pic').length;
+const kz=all.filter(s=>s.ward==='keszenletes').length;
+const bh=all.filter(s=>s.ward==='behivos').length;
+const pct=total?Math.round(all.length/total*100):0;
+return `<div style="margin-bottom:13px;">
+<div style="display:flex;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:4px;">
+<span style="font-weight:600;font-size:.88rem;">${doc.name}</span>
+<span style="font-size:.74rem;color:var(--tx2);">${all.length} ügyelet · ${doc.role==='szakorvos'?'Szakorvos':'Rezidens'}</span>
+</div>
+<div style="background:var(--bord);border-radius:5px;height:7px;overflow:hidden;">
+<div style="background:${doc.role==='szakorvos'?'var(--blue)':'var(--ora)'};height:100%;width:${pct}%;border-radius:5px;"></div>
+</div>
+<div style="font-size:.7rem;color:var(--tx2);margin-top:3px;">
+${doc.capAB?'✓':'✗'} A+B · ${doc.capPIC?'✓':'✗'} PIC/ITO · ${doc.capKZ!==false?'✓':'✗'} Kész. · ${doc.capBH!==false?'✓':'✗'} Behívós &nbsp;|&nbsp;
+${ab} A+B · ${pic} PIC/ITO · ${kz} készenlétes · ${bh} behívós
+</div>
+</div>`;
+}).join('')||'<p style="color:var(--tx2);">Nincs adat.</p>';
+}
+
+// ── XLSX EXPORT ──
+function exportXLSX(){
+if(!window.XLSX){toast('XLSX könyvtár nem elérhető');return;}
+const wb=XLSX.utils.book_new();
+
+// Sheet 1: Beosztások
+const wl={ab:'A+B osztály',pic:'PIC/ITO',ab_extra:'A+B extra (hétvégi)',keszenletes:'Készenlétes',behivos:'Behívós'};
+const headers=['Dátum','Nap','Osztály/Típus','Orvos neve','Típus (Szak/Rez)','A+B jogos.','PIC jogos.','Rezidens warn.','Egymást követő','Megjegyzés'];
+const rows=shifts.sort((a,b)=>a.date.localeCompare(b.date)||a.ward.localeCompare(b.ward)).map(s=>{
+const doc=getDoc(s.doctorId);
+const dt=new Date(s.date);
+return [
+s.date,
+DOWS[dt.getDay()],
+wl[s.ward]||s.ward,
+doc?doc.name:'?',
+doc?doc.role==='szakorvos'?'Szakorvos':'Rezidens':'',
+doc?.capAB?'Igen':'Nem',
+doc?.capPIC?'Igen':'Nem',
+s.isWarn?'Igen':'',
+hasConsec(s.doctorId,s.date)?'Igen':'',
+s.note||''
+];
+});
+const ws1=XLSX.utils.aoa_to_sheet([headers,...rows]);
+ws1['!cols']=[{wch:12},{wch:5},{wch:22},{wch:22},{wch:12},{wch:10},{wch:10},{wch:14},{wch:14},{wch:20}];
+XLSX.utils.book_append_sheet(wb,ws1,'Beosztások');
+
+// Sheet 2: Orvosok
+const dh=['Név','Típus','A+B jogosult','PIC/ITO jogosult','Készenlétes','Behívós','Ügyeletek száma','Telefon','Email','Megjegyzés'];
+const dr=doctors.map(d=>[d.name,d.role==='szakorvos'?'Szakorvos':'Rezidens',d.capAB?'Igen':'Nem',d.capPIC?'Igen':'Nem',d.capKZ!==false?'Igen':'Nem',d.capBH!==false?'Igen':'Nem',shifts.filter(s=>s.doctorId===d.id).length,d.phone,d.email,d.note]);
+const ws2=XLSX.utils.aoa_to_sheet([dh,...dr]);
+ws2['!cols']=[{wch:22},{wch:12},{wch:14},{wch:14},{wch:16},{wch:18},{wch:22},{wch:24}];
+XLSX.utils.book_append_sheet(wb,ws2,'Orvosok');
+
+// Sheet 3: Havi összesítő
+const months=[...new Set(shifts.map(s=>s.date.slice(0,7)))].sort();
+const mh=['Hónap',...doctors.map(d=>d.name),'Összesen'];
+const mr=months.map(m=>{
+const mShifts=shifts.filter(s=>s.date.startsWith(m));
+const[y,mo]=m.split('-');
+const label=`${y}. ${MONTHS[parseInt(mo)-1]}`;
+const cnts=doctors.map(d=>mShifts.filter(s=>s.doctorId===d.id).length);
+return [label,...cnts,cnts.reduce((a,b)=>a+b,0)];
+});
+const ws3=XLSX.utils.aoa_to_sheet([mh,...mr]);
+ws3['!cols']=[{wch:18},...doctors.map(()=>({wch:18})),{wch:10}];
+XLSX.utils.book_append_sheet(wb,ws3,'Havi összesítő');
+
+XLSX.writeFile(wb,'ugyeleti_beosztas.xlsx');
+toast('XLSX letöltve ✓');
+}
+
+// ── PHONE FORMATTER ──
+function formatPhone(input){
+let v=input.value.replace(/\D/g,'');
+// strip leading 06 or 36 or +36
+if(v.startsWith('06')) v=v.slice(2);
+else if(v.startsWith('36')) v=v.slice(2);
+// now v should be 9 digits: XXXXXXXXXX
+let out='';
+if(v.length>0) out='+36 ';
+if(v.length>=2) out+=v.slice(0,2)+' ';
+else { out+=v; input.value=out.trimEnd(); return; }
+if(v.length>=5) out+=v.slice(2,5)+' ';
+else { out+=v.slice(2); input.value=out.trimEnd(); return; }
+out+=v.slice(5,9);
+input.value=out.trimEnd();
+}
+
+// ── MODAL HELPERS ──
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+// ── INIT ──
+initDate();
+const d1=new Date();d1.setDate(1);
+const d2=new Date(d1.getFullYear(),d1.getMonth()+1,0);
+document.getElementById('autoS').value=d1.toISOString().slice(0,10);
+document.getElementById('autoE').value=d2.toISOString().slice(0,10);
+
+// PWA service worker
+if('serviceWorker' in navigator){
+navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+// Wait for Firebase then start listeners
+if(window._firebaseReady){
+showLoader();
+startListeners();
+} else {
+window.addEventListener('firebaseReady',()=>{
+showLoader();
+startListeners();
+});
+}
+</script>
+
+</body>
+</html>
