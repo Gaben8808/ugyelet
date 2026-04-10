@@ -4,9 +4,9 @@
 
 const CACHE = ‘ugyelet-v1’;
 const SHELL = [
-‘/’,
-‘/index.html’,
-‘/manifest.json’,
+‘/ugyelet/’,
+‘/ugyelet/index.html’,
+‘/ugyelet/manifest.json’,
 ‘https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap’,
 ‘https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js’,
 ];
