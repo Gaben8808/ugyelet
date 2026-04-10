@@ -196,8 +196,12 @@ label{font-size:.78rem;font-weight:600;color:var(--tx2);display:block;margin-bot
     <h1>🏥 Ügyeleti Beosztó</h1>
     <p>Cholnoky Ferenc Kórház – Gyermekcentrum</p>
   </div>
-  <button class="h-btn" onclick="exportXLSX()">⬇ XLSX</button>
+  <div style="display:flex; gap:8px;">
+    <button class="h-btn" onclick="document.getElementById('infoModal').classList.add('open')">ℹ️ Infó</button>
+    <button class="h-btn" onclick="exportXLSX()">⬇ XLSX</button>
+  </div>
 </header>
+
 
 <nav class="top-nav">
   <button class="active" onclick="showTab('naptar')">📅 Naptár</button>
@@ -379,6 +383,52 @@ label{font-size:.78rem;font-weight:600;color:var(--tx2);display:block;margin-bot
     </div>
   </div>
 </div>
+
+<div class="overlay" id="infoModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">ℹ️ Információk</div>
+    
+    <div class="info-ban" style="margin-bottom:15px;">
+      <strong>Ügyeleti Beosztó – Gyermekcentrum</strong><br>
+      <span style="font-size:0.8rem; line-height:1.4; display:block; margin-top:4px;">Ezt az alkalmazást a veszprémi Cholnoky Ferenc Kórház Gyermekosztályának készítettem, hogy megkönnyítsem az ügyeleti beosztások tervezését és nyomon követését.</span>
+    </div>
+
+    <div style="margin-bottom:15px;">
+      <h4 style="font-size:0.9rem; margin-bottom:8px; color:var(--blue);">📱 Telepítés telefonra (PWA)</h4>
+      
+      <div class="con-item" style="display:block; margin-bottom:8px;">
+        <strong>🍏 iPhone (Safari böngésző)</strong>
+        <ol style="margin-top:5px; margin-bottom:0; padding-left:20px; font-size:0.8rem; color:var(--tx2); line-height:1.5;">
+          <li>Nyisd meg ezt a linket a <strong>Safari</strong> böngészőben.</li>
+          <li>Koppints az alul középen lévő <strong>Megosztás</strong> (négyzetből felfelé mutató nyíl) ikonra.</li>
+          <li>Görgess le, és válaszd a <strong>Főképernyőhöz adás</strong> opciót.</li>
+          <li>A jobb felső sarokban koppints a <strong>Hozzáadás</strong> gombra.</li>
+        </ol>
+      </div>
+
+      <div class="con-item" style="display:block;">
+        <strong>🤖 Android (Chrome böngésző)</strong>
+        <ol style="margin-top:5px; margin-bottom:0; padding-left:20px; font-size:0.8rem; color:var(--tx2); line-height:1.5;">
+          <li>Nyisd meg ezt a linket a <strong>Chrome</strong> böngészőben.</li>
+          <li>Koppints a jobb felső sarokban lévő <strong>Menü</strong> (három pötty) ikonra.</li>
+          <li>Válaszd a <strong>Hozzáadás a kezdőképernyőhöz</strong> (vagy Alkalmazás telepítése) opciót.</li>
+          <li>Koppints a <strong>Telepítés</strong> vagy Hozzáadás gombra.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div style="font-size:0.8rem; color:var(--tx2); text-align:center; margin-top:20px;">
+      <strong>Készítette:</strong> [Ide írd be a nevedet] <br>
+      <span style="font-size:0.75rem; opacity:0.8;">Verzió: 1.0.0 · Offline módban is működik</span>
+    </div>
+
+    <div class="mfoot" style="margin-top:20px;">
+      <button class="btn btn-primary" style="width:100%; padding:12px;" onclick="closeModal('infoModal')">Rendben, értem</button>
+    </div>
+  </div>
+</div>
+
 
 <div class="toast" id="toast"></div>
 
