@@ -12,6 +12,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Ügyeleti">
 <link rel="apple-touch-icon" href="/ugyelet/icon-192.svg">
+<link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root {
@@ -202,7 +203,6 @@ label{font-size:.78rem;font-weight:600;color:var(--tx2);display:block;margin-bot
   </div>
 </header>
 
-
 <nav class="top-nav">
   <button class="active" onclick="showTab('naptar')">📅 Naptár</button>
   <button onclick="showTab('lista')">📋 Lista</button>
@@ -225,7 +225,7 @@ label{font-size:.78rem;font-weight:600;color:var(--tx2);display:block;margin-bot
       <span class="chip c-pic" style="display:inline-block;padding:2px 7px;">PIC/ITO</span>
       <span class="chip c-ex" style="display:inline-block;padding:2px 7px;">A+B extra</span>
       <span class="chip c-kz" style="display:inline-block;padding:2px 7px;">Készenlétes</span>
-      <span class="chip c-bh" style="display:inline-block;padding:2px 7px;">Behívós</span>
+      <span class="chip c-bh" style="display:inline-block;padding:2px 7px;">Bébi Mentő</span>
     </div>
     <div class="cal-grid" id="calGrid"></div>
   </div>
@@ -251,7 +251,7 @@ label{font-size:.78rem;font-weight:600;color:var(--tx2);display:block;margin-bot
         <option value="pic">PIC/ITO</option>
         <option value="ab_extra">A+B extra</option>
         <option value="keszenletes">Készenlétes</option>
-        <option value="behivos">Behívós</option>
+        <option value="behivos">Bébi Mentő</option>
       </select>
     </div>
     <div id="listBox"></div>
@@ -265,7 +265,7 @@ label{font-size:.78rem;font-weight:600;color:var(--tx2);display:block;margin-bot
     <button class="btn btn-primary" style="margin-top:9px;width:100%;" onclick="openDocModal()">+ Új orvos</button>
   </div>
   <div class="info-ban" style="margin:0 0 12px;">
-    💡 <strong>Jogosultságok:</strong> Minden orvosnál beállítható, hogy ügyelhet-e A+B, PIC/ITO osztályon, lehet-e készenlétes és/vagy behívós. Készenlétes és behívós csak szakorvos lehet. Az egymást követő nap szabály a készenlétes/behívós pozíciókra nem vonatkozik.
+    💡 <strong>Jogosultságok:</strong> Minden orvosnál beállítható, hogy ügyelhet-e A+B, PIC/ITO osztályon, lehet-e készenlétes és/vagy Bébi Mentő. Készenlétes és Bébi Mentő csak szakorvos lehet. Az egymást követő nap szabály a készenlétes/Bébi Mentő pozíciókra nem vonatkozik.
   </div>
 </div>
 
@@ -293,11 +293,11 @@ label{font-size:.78rem;font-weight:600;color:var(--tx2);display:block;margin-bot
       <div class="con-item"><span>Meglévő beosztások megőrzése</span><div class="tog on" id="togKeep" onclick="this.classList.toggle('on')"></div></div>
     </div>
     <div class="fr">
-      <label>Készenlétes/behívós generálása</label>
+      <label>Készenlétes/Bébi Mentő generálása</label>
       <select id="autoKB">
-        <option value="both">Mindkettő (készenlétes + behívós)</option>
+        <option value="both">Mindkettő (készenlétes + Bébi Mentő)</option>
         <option value="keszenletes">Csak készenlétes</option>
-        <option value="behivos">Csak behívós</option>
+        <option value="behivos">Csak Bébi Mentő</option>
         <option value="none">Egyik sem</option>
       </select>
     </div>
@@ -336,53 +336,6 @@ label{font-size:.78rem;font-weight:600;color:var(--tx2);display:block;margin-bot
   <button onclick="showTab('auto')"><span class="nav-ico">✨</span>Auto</button>
   <button onclick="showTab('stat')"><span class="nav-ico">📊</span>Stat</button>
 </nav>
-
-<div class="overlay" id="shiftModal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="smTitle">Ügyelet</div>
-    <div class="fr">
-      <label>Orvos</label>
-      <select id="smDoc" onchange="checkSmWarns()"></select>
-    </div>
-    <div id="smResWarn" class="warn-ban hidden">⚠️ Rezidens szabály: a másik pozícióban szakorvos szükséges.</div>
-    <div id="smConWarn" class="err-ban hidden">🚫 Egymást követő nap – ez az orvos szomszédos napon már ügyel!</div>
-    <div class="fr"><label>Megjegyzés</label><textarea id="smNote" rows="2" placeholder="Opcionális..."></textarea></div>
-    <div class="mfoot">
-      <button class="btn btn-del btn-sm" id="smDel" onclick="deleteShift()" style="display:none;">Törlés</button>
-      <button class="btn btn-sec" onclick="closeModal('shiftModal')">Mégsem</button>
-      <button class="btn btn-primary" onclick="saveShift()">Mentés</button>
-    </div>
-  </div>
-</div>
-
-<div class="overlay" id="docModal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="dmTitle">Orvos adatai</div>
-    <div class="fr"><label>Név</label><input type="text" id="dmName" placeholder="Dr. Példa Éva"></div>
-    <div class="fg2">
-      <div class="fr"><label>Típus</label>
-        <select id="dmRole"><option value="szakorvos">Szakorvos</option><option value="rezidens">Rezidens</option></select>
-      </div>
-      <div class="fr"><label>Telefon</label><input type="tel" id="dmPhone" placeholder="307654321" oninput="formatPhone(this)" maxlength="18"></div>
-    </div>
-    <div class="fr"><label>Email</label><input type="email" id="dmEmail"></div>
-    <div class="fr"><label>Megjegyzés</label><input type="text" id="dmNote" placeholder="pl. Pénteken nem tud"></div>
-    <div style="margin-top:4px;">
-      <label style="margin-bottom:8px;display:block;">Jogosultságok</label>
-      <div class="con-item"><span>A+B osztályon ügyelhet</span><div class="tog on" id="dmAB" onclick="this.classList.toggle('on')"></div></div>
-      <div class="con-item"><span>PIC/ITO-n ügyelhet</span><div class="tog" id="dmPIC" onclick="this.classList.toggle('on')"></div></div>
-      <div class="con-item"><span>Készenlétes lehet</span><div class="tog on" id="dmKZ" onclick="this.classList.toggle('on')"></div></div>
-      <div class="con-item"><span>Behívós lehet</span><div class="tog on" id="dmBH" onclick="this.classList.toggle('on')"></div></div>
-    </div>
-    <div class="mfoot">
-      <button class="btn btn-del btn-sm" id="dmDel" onclick="deleteDoc()" style="display:none;">Törlés</button>
-      <button class="btn btn-sec" onclick="closeModal('docModal')">Mégsem</button>
-      <button class="btn btn-primary" onclick="saveDoc()">Mentés</button>
-    </div>
-  </div>
-</div>
 
 <div class="overlay" id="infoModal">
   <div class="modal">
@@ -425,7 +378,7 @@ label{font-size:.78rem;font-weight:600;color:var(--tx2);display:block;margin-bot
       </div>
     </div>
 
-    <div style="border-top:1px solid var(--bord); pt-3; margin-top:15px; padding-top:10px;">
+    <div style="border-top:1px solid var(--bord); margin-top:15px; padding-top:10px;">
       <h4 style="font-size:0.85rem; margin-bottom:8px;">📧 Kapcsolat és Hibajelentés</h4>
       <p style="font-size:0.8rem; color:var(--tx2); margin-bottom:8px;">
         Fejlesztéssel, módosítással vagy hibajelentéssel kapcsolatban az alábbi címeken érhetsz el:
@@ -441,7 +394,54 @@ label{font-size:.78rem;font-weight:600;color:var(--tx2);display:block;margin-bot
     </div>
 
     <div class="mfoot">
-      <button class="btn btn-primary" style="width:100%;" onclick="closeModal('infoModal')">Bezár</button>
+      <button class="btn btn-primary" style="width:100%;" onclick="closeModal('infoModal')">Rendben</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="shiftModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="smTitle">Ügyelet</div>
+    <div class="fr">
+      <label>Orvos</label>
+      <select id="smDoc" onchange="checkSmWarns()"></select>
+    </div>
+    <div id="smResWarn" class="warn-ban hidden">⚠️ Rezidens szabály: a másik pozícióban szakorvos szükséges.</div>
+    <div id="smConWarn" class="err-ban hidden">🚫 Egymást követő nap – ez az orvos szomszédos napon már ügyel!</div>
+    <div class="fr"><label>Megjegyzés</label><textarea id="smNote" rows="2" placeholder="Opcionális..."></textarea></div>
+    <div class="mfoot">
+      <button class="btn btn-del btn-sm" id="smDel" onclick="deleteShift()" style="display:none;">Törlés</button>
+      <button class="btn btn-sec" onclick="closeModal('shiftModal')">Mégsem</button>
+      <button class="btn btn-primary" onclick="saveShift()">Mentés</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="docModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="dmTitle">Orvos adatai</div>
+    <div class="fr"><label>Név</label><input type="text" id="dmName" placeholder="Dr. Példa Éva"></div>
+    <div class="fg2">
+      <div class="fr"><label>Típus</label>
+        <select id="dmRole"><option value="szakorvos">Szakorvos</option><option value="rezidens">Rezidens</option></select>
+      </div>
+      <div class="fr"><label>Telefon</label><input type="tel" id="dmPhone" placeholder="307654321" oninput="formatPhone(this)" maxlength="18"></div>
+    </div>
+    <div class="fr"><label>Email</label><input type="email" id="dmEmail"></div>
+    <div class="fr"><label>Megjegyzés</label><input type="text" id="dmNote" placeholder="pl. Pénteken nem tud"></div>
+    <div style="margin-top:4px;">
+      <label style="margin-bottom:8px;display:block;">Jogosultságok</label>
+      <div class="con-item"><span>A+B osztályon ügyelhet</span><div class="tog on" id="dmAB" onclick="this.classList.toggle('on')"></div></div>
+      <div class="con-item"><span>PIC/ITO-n ügyelhet</span><div class="tog" id="dmPIC" onclick="this.classList.toggle('on')"></div></div>
+      <div class="con-item"><span>Készenlétes lehet</span><div class="tog on" id="dmKZ" onclick="this.classList.toggle('on')"></div></div>
+      <div class="con-item"><span>Bébi Mentő lehet</span><div class="tog on" id="dmBH" onclick="this.classList.toggle('on')"></div></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-del btn-sm" id="dmDel" onclick="deleteDoc()" style="display:none;">Törlés</button>
+      <button class="btn btn-sec" onclick="closeModal('docModal')">Mégsem</button>
+      <button class="btn btn-primary" onclick="saveDoc()">Mentés</button>
     </div>
   </div>
 </div>
@@ -470,7 +470,7 @@ const _app = initializeApp({
 });
 const db = getFirestore(_app);
 
-// OFFLINE MÓD BEKAPCSOLÁSA (Ahogy az előző körben beszéltük!)
+// OFFLINE MÓD BEKAPCSOLÁSA
 enableIndexedDbPersistence(db).catch((err) => {
     console.warn("Offline Firestore hiba:", err.code);
 });
@@ -561,7 +561,7 @@ const WARD_CFG={
   ab_extra:  {label:'A+B extra (hétvégi)',chip:'c-ex',  slot:'s-ex',  wb:'wb-ex'},
   pic:       {label:'PIC/ITO',            chip:'c-pic', slot:'s-pic', wb:'wb-pic'},
   keszenletes:{label:'Készenlétes',       chip:'c-kz',  slot:'s-kz',  wb:'wb-kz'},
-  behivos:   {label:'Behívós',            chip:'c-bh',  slot:'s-bh',  wb:'wb-bh'},
+  behivos:   {label:'Bébi Mentő',         chip:'c-bh',  slot:'s-bh',  wb:'wb-bh'},
 };
 
 function expectedSlots(date){
@@ -575,7 +575,7 @@ function expectedSlots(date){
   }
   slots.push({ward:'pic',label:'PIC/ITO'});
   slots.push({ward:'keszenletes',label:'Készenlétes'});
-  slots.push({ward:'behivos',label:'Behívós'});
+  slots.push({ward:'behivos',label:'Bébi Mentő'});
   return slots;
 }
 
@@ -806,7 +806,7 @@ function renderDocs(){
               <span class="cp ${doc.capAB?'cp-ab':'cp-off'}">A+B ${doc.capAB?'✓':'✗'}</span>
               <span class="cp ${doc.capPIC?'cp-pic':'cp-off'}">PIC/ITO ${doc.capPIC?'✓':'✗'}</span>
               <span class="cp ${doc.capKZ!==false?'cp-kz':'cp-off'}">Kész. ${doc.capKZ!==false?'✓':'✗'}</span>
-              <span class="cp ${doc.capBH!==false?'cp-bh':'cp-off'}">Behívós ${doc.capBH!==false?'✓':'✗'}</span>
+              <span class="cp ${doc.capBH!==false?'cp-bh':'cp-off'}">Bébi Mentő ${doc.capBH!==false?'✓':'✗'}</span>
             </div>
           </div>
         </div>
@@ -1148,8 +1148,8 @@ function renderStats(){
         <div style="background:${doc.role==='szakorvos'?'var(--blue)':'var(--ora)'};height:100%;width:${pct}%;border-radius:5px;"></div>
       </div>
       <div style="font-size:.7rem;color:var(--tx2);margin-top:3px;">
-        ${doc.capAB?'✓':'✗'} A+B · ${doc.capPIC?'✓':'✗'} PIC/ITO · ${doc.capKZ!==false?'✓':'✗'} Kész. · ${doc.capBH!==false?'✓':'✗'} Behívós &nbsp;|&nbsp;
-        ${ab} A+B · ${pic} PIC/ITO · ${kz} készenlétes · ${bh} behívós
+        ${doc.capAB?'✓':'✗'} A+B · ${doc.capPIC?'✓':'✗'} PIC/ITO · ${doc.capKZ!==false?'✓':'✗'} Kész. · ${doc.capBH!==false?'✓':'✗'} Bébi Mentő &nbsp;|&nbsp;
+        ${ab} A+B · ${pic} PIC/ITO · ${kz} készenlétes · ${bh} Bébi Mentő
       </div>
     </div>`;
   }).join('')||'<p style="color:var(--tx2);">Nincs adat.</p>';
@@ -1159,48 +1159,76 @@ function exportXLSX(){
   if(!window.XLSX){toast('XLSX könyvtár nem elérhető');return;}
   const wb=XLSX.utils.book_new();
 
-  const wl={ab:'A+B osztály',pic:'PIC/ITO',ab_extra:'A+B extra (hétvégi)',keszenletes:'Készenlétes',behivos:'Behívós'};
-  const headers=['Dátum','Nap','Osztály/Típus','Orvos neve','Típus (Szak/Rez)','A+B jogos.','PIC jogos.','Rezidens warn.','Egymást követő','Megjegyzés'];
-  const rows=shifts.sort((a,b)=>a.date.localeCompare(b.date)||a.ward.localeCompare(b.ward)).map(s=>{
-    const doc=getDoc(s.doctorId);
-    const dt=new Date(s.date);
-    return [
-      s.date,
-      DOWS[dt.getDay()],
-      wl[s.ward]||s.ward,
-      doc?doc.name:'?',
-      doc?doc.role==='szakorvos'?'Szakorvos':'Rezidens':'',
-      doc?.capAB?'Igen':'Nem',
-      doc?.capPIC?'Igen':'Nem',
-      s.isWarn?'Igen':'',
-      hasConsec(s.doctorId,s.date)?'Igen':'',
-      s.note||''
-    ];
-  });
-  const ws1=XLSX.utils.aoa_to_sheet([headers,...rows]);
-  ws1['!cols']=[{wch:12},{wch:5},{wch:22},{wch:22},{wch:12},{wch:10},{wch:10},{wch:14},{wch:14},{wch:20}];
-  XLSX.utils.book_append_sheet(wb,ws1,'Beosztások');
+  // --- 1. MUNKALAP: NYOMTATHATÓ HAVI BEOSZTÁS ---
+  // Mindig azt a hónapot exportálja, amit éppen a Naptár nézeten láttok
+  const dim = new Date(curY, curM, 0).getDate();
+  const monthName = MONTHS[curM-1];
+  
+  const headers = [
+    '', // Nap száma
+    '', // Nap neve
+    'A-B részleg',
+    'Hétvégi ügyelet',
+    'PIC',
+    'PIC/GY.INT. készenlét',
+    'Bébi Mentő'
+  ];
 
-  const dh=['Név','Típus','A+B jogosult','PIC/ITO jogosult','Készenlétes','Behívós','Ügyeletek száma','Telefon','Email','Megjegyzés'];
+  const wsData = [
+    [], // Üres sor a margó miatt
+    ['', '', '', 'Ügyeleti beosztás'], // Cím
+    ['', '', '', `${curY}. ${monthName.toLowerCase()} hónapban`], // Alcím
+    [], // Üres sor
+    headers
+  ];
+
+  const dayNames = ['vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat'];
+
+  for(let d=1; d<=dim; d++){
+    const dateStr = fmtDate(curY, curM, d);
+    const dt = new Date(curY, curM-1, d);
+    const dayName = dayNames[dt.getDay()];
+
+    const dayShifts = shifts.filter(s => s.date === dateStr);
+    const getDocName = (ward) => {
+      const s = dayShifts.find(x => x.ward === ward);
+      return s ? (getDoc(s.doctorId)?.name || '') : '';
+    };
+
+    const row = [
+      d,
+      dayName,
+      getDocName('ab'),
+      getDocName('ab_extra'),
+      getDocName('pic'),
+      getDocName('keszenletes'),
+      getDocName('behivos')
+    ];
+    wsData.push(row);
+  }
+
+  const ws1 = XLSX.utils.aoa_to_sheet(wsData);
+  
+  // Oszlopszélességek formázása, hogy szép legyen kinyomtatva
+  ws1['!cols'] = [
+    {wch: 4},  // Nap szam
+    {wch: 12}, // Nap nev
+    {wch: 25}, // A-B
+    {wch: 25}, // Hetvegi
+    {wch: 25}, // PIC
+    {wch: 25}, // PIC/GY.INT kesz
+    {wch: 25}  // Bebi mento
+  ];
+  XLSX.utils.book_append_sheet(wb, ws1, `${monthName} beosztás`);
+
+  // --- 2. MUNKALAP: ORVOSOK ---
+  const dh=['Név','Típus','A+B jogosult','PIC/ITO jogosult','Készenlétes','Bébi Mentő','Ügyeletek száma','Telefon','Email','Megjegyzés'];
   const dr=doctors.map(d=>[d.name,d.role==='szakorvos'?'Szakorvos':'Rezidens',d.capAB?'Igen':'Nem',d.capPIC?'Igen':'Nem',d.capKZ!==false?'Igen':'Nem',d.capBH!==false?'Igen':'Nem',shifts.filter(s=>s.doctorId===d.id).length,d.phone,d.email,d.note]);
   const ws2=XLSX.utils.aoa_to_sheet([dh,...dr]);
   ws2['!cols']=[{wch:22},{wch:12},{wch:14},{wch:14},{wch:16},{wch:18},{wch:22},{wch:24}];
-  XLSX.utils.book_append_sheet(wb,ws2,'Orvosok');
+  XLSX.utils.book_append_sheet(wb,ws2,'Orvosok statisztika');
 
-  const months=[...new Set(shifts.map(s=>s.date.slice(0,7)))].sort();
-  const mh=['Hónap',...doctors.map(d=>d.name),'Összesen'];
-  const mr=months.map(m=>{
-    const mShifts=shifts.filter(s=>s.date.startsWith(m));
-    const[y,mo]=m.split('-');
-    const label=`${y}. ${MONTHS[parseInt(mo)-1]}`;
-    const cnts=doctors.map(d=>mShifts.filter(s=>s.doctorId===d.id).length);
-    return [label,...cnts,cnts.reduce((a,b)=>a+b,0)];
-  });
-  const ws3=XLSX.utils.aoa_to_sheet([mh,...mr]);
-  ws3['!cols']=[{wch:18},...doctors.map(()=>({wch:18})),{wch:10}];
-  XLSX.utils.book_append_sheet(wb,ws3,'Havi összesítő');
-
-  XLSX.writeFile(wb,'ugyeleti_beosztas.xlsx');
+  XLSX.writeFile(wb, `ugyeleti_beosztas_${curY}_${pad(curM)}.xlsx`);
   toast('XLSX letöltve ✓');
 }
 
@@ -1258,3 +1286,4 @@ startListeners();
 
 </body>
 </html>
+
