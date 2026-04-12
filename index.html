@@ -393,6 +393,14 @@ label{font-size:.78rem;font-weight:600;color:var(--tx2);display:block;margin-bot
     </div>
     </div>
 
+      <div style="margin-bottom:15px; padding:10px; background:var(--blue-l); border-radius:10px; border:1px solid var(--blue2);">
+      <h4 style="font-size:0.85rem; margin-bottom:5px; color:var(--blue);">🔄 Hogyan frissül az app?</h4>
+      <p style="font-size:0.75rem; color:var(--tx); line-height:1.4; margin:0;">
+        Mivel a beosztó internet nélkül is működik, a frissítéseket a háttérben tölti le. Ha új verzió jelenik meg, 
+        a képernyő alján felugrik egy <strong>"Frissítés"</strong> gomb. Csak koppints rá, és azonnal a legújabb verziót fogod látni!
+      </p>
+    </div>
+
     <div style="border-top:1px solid var(--bord); margin-top:15px; padding-top:10px;">
       <h4 style="font-size:0.85rem; margin-bottom:8px;">📧 Kapcsolat és Hibajelentés</h4>
       <p style="font-size:0.8rem; color:var(--tx2); margin-bottom:8px;">
@@ -469,6 +477,11 @@ label{font-size:.78rem;font-weight:600;color:var(--tx2);display:block;margin-bot
 </div>
 <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
 
+<div id="updateBanner" style="display:none; position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:var(--blue); color:white; padding:12px 20px; border-radius:30px; z-index:1000; box-shadow:0 4px 15px rgba(0,0,0,0.3); align-items:center; gap:15px; width:max-content; max-width:90%;">
+  <span style="font-size:0.85rem; font-weight:600;">🚀 Új verzió elérhető!</span>
+  <button onclick="applyUpdate()" style="background:white; color:var(--blue); border:none; padding:6px 12px; border-radius:20px; font-weight:700; cursor:pointer; font-size:0.8rem;">Frissítés most</button>
+</div>
+  
 <script type="module">
 // ── Firebase imports ──
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -1270,9 +1283,40 @@ const d2=new Date(d1.getFullYear(),d1.getMonth()+1,0);
 document.getElementById('autoS').value=d1.toISOString().slice(0,10);
 document.getElementById('autoE').value=d2.toISOString().slice(0,10);
 
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/ugyelet/sw.js').catch(()=>{});
+let newWorker;
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/ugyelet/sw.js').then(reg => {
+    reg.addEventListener('updatefound', () => {
+      newWorker = reg.installing;
+      newWorker.addEventListener('statechange', () => {
+        // Ha sikeresen letöltött egy új verziót a háttérben
+        if (newWorker.state === 'installed') {
+          if (navigator.serviceWorker.controller) {
+            // Megjelenítjük a frissítés gombot a felhasználónak
+            document.getElementById('updateBanner').style.display = 'flex';
+          }
+        }
+      });
+    });
+  }).catch(()=>{});
+
+  // Ha a Service Worker frissült, automatikusan újratöltjük az oldalt
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      window.location.reload();
+      refreshing = true;
+    }
+  });
 }
+
+// Ezt hívja meg a "Frissítés most" gomb
+window.applyUpdate = function() {
+  if (newWorker) {
+    newWorker.postMessage('SKIP_WAITING'); // Szólunk az sw.js-nek, hogy vegye át az irányítást
+  }
+};
+
 
 // ---- FÜGGVÉNYEK KIKÖTÉSE A HTML SZÁMÁRA (MODULE FIX) ----
 window.chMonth = chMonth;
