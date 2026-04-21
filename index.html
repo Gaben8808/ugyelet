@@ -575,7 +575,36 @@ async function seedDoctors(){
 
 const pad=n=>String(n).padStart(2,'0');
 const fmtDate=(y,m,d)=>`${y}-${pad(m)}-${pad(d)}`;
-const isWE=date=>{const w=new Date(date).getDay();return w===0||w===6;};
+// --- ÜNNEPNAPOK ÉS HÉTVÉGÉK SZÁMÍTÁSA ---
+const holidaysCache = {};
+function getHolidays(y) {
+  if(holidaysCache[y]) return holidaysCache[y];
+  // Fix magyar ünnepnapok
+  const h = [`${y}-01-01`, `${y}-03-15`, `${y}-05-01`, `${y}-08-20`, `${y}-10-23`, `${y}-11-01`, `${y}-12-25`, `${y}-12-26`];
+  
+  // Húsvét kiszámítása (Meeus/Jones/Butcher algoritmus)
+  const a=y%19, b=Math.floor(y/100), c=y%100, d=Math.floor(b/4), e=b%4, f=Math.floor((b+8)/25), g=Math.floor((b-f+1)/3), hh=(19*a+b-d-g+15)%30, i=Math.floor(c/4), k=c%4, l=(32+2*e+2*i-hh-k)%7, m=Math.floor((a+11*hh+22*l)/451), mo=Math.floor((hh+l-7*m+114)/31), d0=((hh+l-7*m+114)%31)+1;
+  const easter = new Date(Date.UTC(y, mo-1, d0));
+  
+  const addDays = (dt, days) => { const nd = new Date(dt); nd.setUTCDate(nd.getUTCDate() + days); return nd.toISOString().slice(0,10); };
+  
+  // Mozgó ünnepek hozzáadása
+  h.push(addDays(easter, -2)); // Nagypéntek
+  h.push(addDays(easter, 1));  // Húsvét hétfő
+  h.push(addDays(easter, 50)); // Pünkösd hétfő
+  
+  holidaysCache[y] = new Set(h);
+  return holidaysCache[y];
+}
+
+const isWE = date => {
+  const dt = new Date(date);
+  const w = dt.getDay();
+  if(w === 0 || w === 6) return true; // Szombat, Vasárnap
+  return getHolidays(dt.getFullYear()).has(date); // Vagy ünnepnap
+};
+// ---------------------------------------
+
 const getDoc=id=>doctors.find(d=>d.id===id);
 const prevD=date=>{const d=new Date(date);d.setDate(d.getDate()-1);return d.toISOString().slice(0,10);};
 const nextD=date=>{const d=new Date(date);d.setDate(d.getDate()+1);return d.toISOString().slice(0,10);};
