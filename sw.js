@@ -2,7 +2,7 @@
 // Stratégia: Network-first (mindig friss adat Firebase-ből),
 // de az app shell (HTML/CSS/JS) cachelve van offline használathoz.
 
-const CACHE = 'ugyelet-v2';
+const CACHE = 'ugyelet-v3';
 const SHELL = [
     '/ugyelet/',
     '/ugyelet/index.html',
